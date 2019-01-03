@@ -4,6 +4,7 @@
 @description:
 
 """
+import Simulation
 
 if __name__ == '__main__':
-    pass
+    Simulation.start()

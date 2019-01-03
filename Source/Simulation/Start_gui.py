@@ -3,10 +3,9 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QRect
-from PyQt5 import QtCore
 from PyQt5 import QtGui
 
-from Painting import Painter, Mower
+from Source.Simulation.Painting import Painter, Mower
 
 
 UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)
@@ -63,7 +62,7 @@ class ControlWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("New Title")
 
 
-def init():
+def start():
     app = QtWidgets.QApplication(sys.argv)
 
     main_window = MainWindow()
@@ -76,5 +75,5 @@ def init():
     sys.exit(app.exec())
 
 
-if __name__=='__main__':
-    init()
+if __name__ == '__main__':
+    start()
