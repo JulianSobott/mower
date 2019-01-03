@@ -1,10 +1,11 @@
 import sys
-from os import getcwd
 
 from PyQt5 import QtWidgets
-from PyQt5 import QtGui
-from PyQt5 import uic
+from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QRect
+
+
+UPDATE_INTERVAL = 500   # in milliseconds
 
 
 class Window(QtWidgets.QMainWindow):
@@ -25,6 +26,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setGeometry(self.SIZE)
         self.show()
 
+    def update(self):
+        print("update")
+
+
 
 class ControlWindow(QtWidgets.QMainWindow):
     TITLE = "Mower simulation CONTROL"
@@ -44,9 +49,15 @@ class ControlWindow(QtWidgets.QMainWindow):
         self.show()
 
 
-if __name__=='__main__':
-    app=QtWidgets.QApplication(sys.argv)
-    #ex = Example()
+def init():
+    app = QtWidgets.QApplication(sys.argv)
     mainWindow = MainWindow()
-    controlWindow = ControlWindow()
+    timer = QTimer()
+    timer.timeout.connect(mainWindow.update)
+    timer.start(UPDATE_INTERVAL)
+    # controlWindow = ControlWindow()
     sys.exit(app.exec())
+
+
+if __name__=='__main__':
+    init()
