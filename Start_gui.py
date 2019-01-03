@@ -1,11 +1,16 @@
 import sys
+import random
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QRect
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+
+from Painting import Painter
 
 
-UPDATE_INTERVAL = 500   # in milliseconds
+UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)
 
 
 class Window(QtWidgets.QMainWindow):
@@ -22,13 +27,25 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__(parent=None)
+
+        self.x_value = 0
+        self.y_value = 10
+
         self.setWindowTitle(self.TITLE)
         self.setGeometry(self.SIZE)
         self.show()
 
-    def update(self):
-        print("update")
+    def paintEvent(self, e):
+        self.draw_widgets()
 
+    def update(self):
+        self.x_value += 1
+        self.repaint()
+
+    def draw_widgets(self):
+        with Painter(self) as painter:
+            painter.setPen(QtCore.Qt.red)
+            painter.drawLine(self.x_value, 40, 250, 40)
 
 
 class ControlWindow(QtWidgets.QMainWindow):
@@ -55,7 +72,7 @@ def init():
     timer = QTimer()
     timer.timeout.connect(mainWindow.update)
     timer.start(UPDATE_INTERVAL)
-    # controlWindow = ControlWindow()
+    controlWindow = ControlWindow()
     sys.exit(app.exec())
 
 
