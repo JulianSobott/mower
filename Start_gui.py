@@ -1,5 +1,4 @@
 import sys
-import random
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
@@ -7,29 +6,22 @@ from PyQt5.QtCore import QRect
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
-from Painting import Painter
+from Painting import Painter, Mower
 
 
 UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)
 
 
-class Window(QtWidgets.QMainWindow):
-    def __init__(self, title, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle(title)
-        self.setFixedSize(500, 600)
-        self.show()
-
-
 class MainWindow(QtWidgets.QMainWindow):
+    """Window responsible for rendering the simulation and calling the update function"""
     TITLE = "Mower simulation"
     SIZE = QRect(0, 0, 500, 600)
 
     def __init__(self):
         super().__init__(parent=None)
 
-        self.x_value = 0
-        self.y_value = 10
+        self.items = []
+        self.items.append(Mower())
 
         self.setWindowTitle(self.TITLE)
         self.setGeometry(self.SIZE)
@@ -39,13 +31,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.draw_widgets()
 
     def update(self):
-        self.x_value += 1
+        for item in self.items:
+            item.update()
         self.repaint()
 
     def draw_widgets(self):
         with Painter(self) as painter:
-            painter.setPen(QtCore.Qt.red)
-            painter.drawLine(self.x_value, 40, 250, 40)
+            painter.setPen(QtGui.QColor(200, 0, 0))
+            for item in self.items:
+                item.draw(painter)
 
 
 class ControlWindow(QtWidgets.QMainWindow):
@@ -61,18 +55,24 @@ class ControlWindow(QtWidgets.QMainWindow):
         cb = QtWidgets.QCheckBox('Show title', self)
         cb.move(20, 20)
         cb.toggle()
-        #cb.stateChanged.connect(self.changeTitle)
+        cb.stateChanged.connect(self.change_title)
 
         self.show()
+
+    def change_title(self):
+        self.setWindowTitle("New Title")
 
 
 def init():
     app = QtWidgets.QApplication(sys.argv)
-    mainWindow = MainWindow()
+
+    main_window = MainWindow()
+    control_window = ControlWindow()
+
     timer = QTimer()
-    timer.timeout.connect(mainWindow.update)
+    timer.timeout.connect(main_window.update)
     timer.start(UPDATE_INTERVAL)
-    controlWindow = ControlWindow()
+
     sys.exit(app.exec())
 
 
