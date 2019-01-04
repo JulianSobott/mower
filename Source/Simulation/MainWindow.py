@@ -13,6 +13,8 @@ from PyQt5 import QtGui
 
 from Simulation.Painting import Painter, Mower
 from utils import Singleton
+from .Logging import logger
+
 
 __all__ = ["MainWindowInterface"]
 
@@ -33,6 +35,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.show()
 
     def paintEvent(self, e):
+        """Overridden from super()"""
         self._draw_widgets()
 
     def update_items(self):

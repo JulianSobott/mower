@@ -7,6 +7,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 
 from .MainWindow import MainWindowInterface
+from .Logging import logger
 
 
 class ControlWindow(QtWidgets.QMainWindow):

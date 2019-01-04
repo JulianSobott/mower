@@ -6,6 +6,7 @@ from PyQt5.QtCore import QTimer
 
 from .MainWindow import MainWindowInterface
 from .ControlWindow import ControlWindow
+from .Logging import logger
 
 
 UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)
@@ -18,6 +19,7 @@ def setup_windows():
     main_window = MainWindowInterface()
     control_window = ControlWindow(main_window)
     main_loop = setup_main_loop(main_window)
+    logger.debug("Start simulation")
     sys.exit(app.exec())
 
 
