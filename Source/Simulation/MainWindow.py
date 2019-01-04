@@ -51,7 +51,7 @@ class MainWindowInterface(metaclass=Singleton):
     """Class that communicates with MainWindow. contains all public functions"""
     def __init__(self):
         self._main_window = MainWindow()
-        self._m_is_paused = False
+        self._m_is_paused = True
 
     def update(self):
         """Update all items and repaints the window"""

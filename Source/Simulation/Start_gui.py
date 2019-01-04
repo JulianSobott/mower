@@ -11,7 +11,7 @@ from .ControlWindow import ControlWindow
 UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)
 
 
-def start():
+def setup_windows():
     """All object must be stored in an object to prevent garbage collection"""
     app = QtWidgets.QApplication(sys.argv)
 
@@ -30,4 +30,4 @@ def setup_main_loop(main_window):
 
 
 if __name__ == '__main__':
-    start()
+    setup_windows()
