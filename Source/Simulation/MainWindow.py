@@ -13,6 +13,8 @@ from PyQt5 import QtGui
 
 from Simulation.Painting import Painter, Mower
 from utils import Singleton
+from .Logging import logger
+
 
 __all__ = ["MainWindowInterface"]
 

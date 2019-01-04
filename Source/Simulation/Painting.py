@@ -12,6 +12,8 @@
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
+from .Logging import logger
+
 
 class Painter(QtGui.QPainter):
 
