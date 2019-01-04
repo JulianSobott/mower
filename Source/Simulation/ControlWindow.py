@@ -24,10 +24,10 @@ class ControlWindow(QtWidgets.QMainWindow):
         self.show()
 
     def _init_ui(self):
-        cb = QtWidgets.QCheckBox('Show title', self)
+        cb = QtWidgets.QCheckBox('Run', self)
         cb.move(20, 20)
-        cb.toggle()
-        cb.stateChanged.connect(self.change_title)
-
-    def change_title(self):
-        self.setWindowTitle("New Title")
+        if cb.isChecked():
+            self.main_window.resume()
+        else:
+            self.main_window.pause()
+        cb.stateChanged.connect(self.main_window.toggle_pause)
