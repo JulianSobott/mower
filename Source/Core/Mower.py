@@ -18,10 +18,12 @@ class Mower:
 
     def rotate_wheel(self, wheel, deg):
         """Implement this function in child class"""
+        logger.error("implement this function in child class")
         pass
 
     def get_sensor_data(self):
         """Implement this function in child class"""
+        logger.error("implement this function in child class: rotate_wheel")
         pass
 
     def update(self):

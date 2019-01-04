@@ -29,25 +29,13 @@ class Painter(QtGui.QPainter):
         return isinstance(exc_val, TypeError)
 
 
-class Item:
+class Renderable:
 
     def update(self):
+        logger.error("implement this function in child class: rotate_wheel")
         pass
 
     def draw(self, painter):
+        logger.error("implement this function in child class: rotate_wheel")
         pass
-
-
-class Mower(Item):
-
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-
-    def update(self):
-        self.x += 2
-        self.y += 1
-
-    def draw(self, painter):
-        painter.fillRect(self.x, self.y, 20, 20, QtGui.QBrush(QtGui.QColor(0, 200, 0), QtCore.Qt.SolidPattern))
 
