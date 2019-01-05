@@ -15,7 +15,10 @@ from utils import Length
 
 class Mower(Core.Mower, Renderable):
 
+    MOWER_COLOR = QtGui.QColor(150, 120, 150)
+
     def __init__(self):
+        super().__init__()
         self.x = Length(1, Length.METER)
         self.y = Length(1, Length.METER)
         self.rotation = 0   # like compass (0 - 360)
@@ -54,6 +57,6 @@ class Mower(Core.Mower, Renderable):
 
         painter.setTransform(transform)
 
-        painter.fillRect(rect, QtGui.QBrush(QtGui.QColor(0, 200, 0), QtCore.Qt.SolidPattern))
+        painter.fillRect(rect, QtGui.QBrush(self.MOWER_COLOR, QtCore.Qt.SolidPattern))
 
         painter.resetTransform()

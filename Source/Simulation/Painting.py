@@ -32,10 +32,10 @@ class Painter(QtGui.QPainter):
 class Renderable:
 
     def update(self):
-        logger.error("implement this function in child class: rotate_wheel")
+        logger.error("implement this function in child class: update")
         pass
 
     def draw(self, painter):
-        logger.error("implement this function in child class: rotate_wheel")
+        logger.error("implement this function in child class: draw")
         pass
 
