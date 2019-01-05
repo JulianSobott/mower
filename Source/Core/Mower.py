@@ -2,9 +2,16 @@
 @author: Julian
 @brief:
 @description:
+    width
+    _____
+   |  ^  |
+   |     |   length
+   |     |
+    -----
 """
 
 from .Logging import logger
+from utils import Length
 
 
 class Mower:
@@ -12,6 +19,10 @@ class Mower:
 
     LEFT_WHEEL = 0
     RIGHT_WHEEL = 1
+
+    WIDTH = Length(0.3, Length.METER)
+    LENGTH = Length(0.5, Length.METER)
+    HEIGHT = Length(0.3, Length.METER)
 
     def __init__(self):
         pass
@@ -41,3 +52,4 @@ class Mower:
         pass
         # TODO: implement
         # Calls rotate_wheel()
+
