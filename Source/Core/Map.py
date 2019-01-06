@@ -20,6 +20,7 @@ class Cell:
         self.y = pos_y
         self.neighbors = []
 
+
 class GrasslandCell(Cell):
 
     IS_PASSABLE = True

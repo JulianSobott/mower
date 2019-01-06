@@ -6,6 +6,7 @@ There is an extra class MainWindowInterface to encapsulate the Qt functionality.
 This way only relevant/public functions are in MainWindowInterface.
 MainWindowInterface is also useful to document functions.
 """
+import time
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
@@ -33,6 +34,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.items.append(Map())
         self.items.append(Mower())
 
+        self.last_update = time.time()
+
         self.setWindowTitle(self.TITLE)
         self.setGeometry(self.SIZE)
         self.show()
@@ -42,8 +45,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._draw_widgets()
 
     def update_items(self):
+        time_passed = time.time() - self.last_update
         for item in self.items:
-            item.update()
+            item.update_rendering(time_passed)
         self.repaint()
 
     def _draw_widgets(self):

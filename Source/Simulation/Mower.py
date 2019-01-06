@@ -3,6 +3,8 @@
 @brief:
 @description:
 """
+import math
+
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5.QtCore import QRect
@@ -24,18 +26,37 @@ class Mower(Core.Mower, Renderable):
         self.rotation = 0   # like compass (0 - 360)
 
     def rotate_wheel(self, wheel, deg):
-        # TODO: implement
+        distance = 2 * math.pi * self.WHEEL_RADIUS * deg/360
+        # with non rotated coord. system
+        alpha = math.atan((distance/self.WHEEL_DISTANCE).pixel())
+        alpha_deg = math.degrees(alpha)
+        delta_y = math.sin(alpha) * (self.WIDTH / 2)
+        adjacent = Length(math.sqrt((((self.WIDTH / 2) ** 2) - (delta_y ** 2)).pixel()), Length.PIXEL)
+        delta_x = adjacent - self.WIDTH
+
+        # with rotated coord. system
+        hypotenuse = Length(math.sqrt((delta_x**2 + delta_y**2).pixel()), Length.PIXEL)
+        full_rotation_degree = self.rotation + alpha_deg
+        real_delta_y = Length(math.asin(full_rotation_degree) * hypotenuse, Length.PIXEL)
+        real_delta_x = Length(math.acos(full_rotation_degree) * hypotenuse, Length.PIXEL)
+
+        self.y += real_delta_y
+        self.x += real_delta_x
+
+        if wheel == self.LEFT_WHEEL:
+            self.rotation += alpha_deg
+        else:
+            self.rotation -= alpha_deg
+
         pass
 
     def get_sensor_data(self):
         # TODO: implement
         pass
 
-    def update(self):
+    def update_rendering(self, passed_time):
         super().update()
-        self.rotation += 10
-        self.x += Length(1, Length.PIXEL)
-        self.y += Length(1, Length.PIXEL)
+        self.rotate_wheel(self.RIGHT_WHEEL, 1)
 
     def draw(self, painter):
         """

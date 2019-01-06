@@ -25,7 +25,7 @@ class Map(Core.Map, Renderable):
         self.pix_map = QtGui.QPixmap(1000, 1000)
         self.f_update_pix_map = True
 
-    def update(self):
+    def update_rendering(self, passed_time):
         super().update()
         pass
 

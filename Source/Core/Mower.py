@@ -20,15 +20,21 @@ class Mower:
     LEFT_WHEEL = 0
     RIGHT_WHEEL = 1
 
+    VELOCITY_MS = 0.1  # m/s
+
     WIDTH = Length(0.3, Length.METER)
     LENGTH = Length(0.5, Length.METER)
     HEIGHT = Length(0.3, Length.METER)
+
+    WHEEL_RADIUS = Length(7, Length.CENTIMETER)
+    WHEEL_DISTANCE = WIDTH  # distance from 1 wheel to the other. measured from both centers
 
     def __init__(self):
         pass
 
     def rotate_wheel(self, wheel, deg):
-        """Implement this function in child class"""
+        """Implement this function in child class
+        WHEEL can be self.LEFT_WHEEL or self.RIGHT_WHEEL"""
         logger.error("implement this function in child class")
         pass
 

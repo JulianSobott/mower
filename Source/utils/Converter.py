@@ -117,6 +117,9 @@ class Length(object):
     def __rmod__(self, other):
         return Length.__mod__(self, other)
 
+    def __pow__(self, power, modulo=None):
+        return Length(self.length**power, self.unit)
+
     def __neg__(self):
         return Length(-self.length, self.unit)
 
