@@ -31,7 +31,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__(parent=None)
 
         self.items = []
-        self.items.append(Map())
+        self.map = Map()
+        self.items.append(self.map)
         self.items.append(Mower())
 
         self.last_update = time.time()
@@ -55,6 +56,18 @@ class MainWindow(QtWidgets.QMainWindow):
             painter.setPen(QtGui.QColor(200, 0, 0))
             for item in self.items:
                 item.draw(painter)
+
+    def set_draw_map(self, allow):
+        self.map.set_draw_map(allow)
+
+    def mousePressEvent(self, mouse_event):
+        self.map.mousePressEvent(mouse_event)
+
+    def mouseMoveEvent(self, mouse_event):
+        self.map.mouseMoveEvent(mouse_event)
+
+    def mouseReleaseEvent(self, mouse_event):
+        self.map.mouseReleaseEvent(mouse_event)
 
 
 class MainWindowInterface(metaclass=Singleton):
@@ -81,4 +94,7 @@ class MainWindowInterface(metaclass=Singleton):
 
     def set_control_window(self, control_window):
         self._m_control_window = control_window
+
+    def set_draw_map(self, allow):
+        self._main_window.set_draw_map(allow)
 

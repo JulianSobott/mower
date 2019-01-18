@@ -7,6 +7,7 @@ import math
 
 from PyQt5 import QtGui
 from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 
 from .Logging import logger
@@ -21,12 +22,16 @@ class Mower(Core.Mower, Renderable):
 
     def __init__(self):
         super().__init__()
-        self.x = Length(1, Length.METER)
-        self.y = Length(1, Length.METER)
+        self.x = Length(0.15, Length.METER)
+        self.y = Length(0.25, Length.METER)
         self.rotation = 0   # like compass (0 - 360)
+
+        png_path = r"E:\Programmieren\mower\Source\Simulation\mower.png"
+        self.img_mower = QtGui.QImage(png_path)
 
     def rotate_wheel(self, wheel, deg):
         distance = 2 * math.pi * self.WHEEL_RADIUS * deg/360
+        distance = math.pi * self.WIDTH / 2
         # with non rotated coord. system
         alpha = math.atan((distance/self.WHEEL_DISTANCE).pixel())
         alpha_deg = math.degrees(alpha)
@@ -35,13 +40,15 @@ class Mower(Core.Mower, Renderable):
         delta_x = adjacent - self.WIDTH
 
         # with rotated coord. system
+        """
         hypotenuse = Length(math.sqrt((delta_x**2 + delta_y**2).pixel()), Length.PIXEL)
         full_rotation_degree = self.rotation + alpha_deg
         real_delta_y = Length(math.asin(full_rotation_degree) * hypotenuse, Length.PIXEL)
         real_delta_x = Length(math.acos(full_rotation_degree) * hypotenuse, Length.PIXEL)
+        """
 
-        self.y += real_delta_y
-        self.x += real_delta_x
+        self.y += delta_y
+        self.x += delta_x
 
         if wheel == self.LEFT_WHEEL:
             self.rotation += alpha_deg
@@ -56,13 +63,15 @@ class Mower(Core.Mower, Renderable):
 
     def update_rendering(self, passed_time):
         super().update()
-        self.rotate_wheel(self.RIGHT_WHEEL, 1)
+        #self.rotate_wheel(self.RIGHT_WHEEL, 1)
 
     def draw(self, painter):
         """
         The center of the mower is the x and y coordinates
         The mower is rotated around the center
         """
+
+
         rect = QRect(self.x.pixel(), self.y.pixel(), self.WIDTH.pixel(), self.LENGTH.pixel())
 
         transform = QtGui.QTransform()
@@ -78,6 +87,7 @@ class Mower(Core.Mower, Renderable):
 
         painter.setTransform(transform)
 
-        painter.fillRect(rect, QtGui.QBrush(self.MOWER_COLOR, QtCore.Qt.SolidPattern))
+        # painter.fillRect(rect, QtGui.QBrush(self.MOWER_COLOR, QtCore.Qt.SolidPattern))
+        painter.drawImage(rect, self.img_mower)
 
         painter.resetTransform()
