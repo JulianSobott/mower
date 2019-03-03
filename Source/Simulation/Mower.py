@@ -26,7 +26,7 @@ class Mower(Core.Mower, Renderable):
         self.y = Length(0.25, Length.METER)
         self.rotation = 0   # like compass (0 - 360)
 
-        png_path = r"E:\Programmieren\mower\Source\Simulation\mower.png"
+        png_path = r"Simulation\mower.png"
         self.img_mower = QtGui.QImage(png_path)
 
     def rotate_wheel(self, wheel, deg):
@@ -63,7 +63,7 @@ class Mower(Core.Mower, Renderable):
 
     def update_rendering(self, passed_time):
         super().update()
-        #self.rotate_wheel(self.RIGHT_WHEEL, 1)
+        self.rotate_wheel(self.RIGHT_WHEEL, 1)
 
     def draw(self, painter):
         """
