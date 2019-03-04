@@ -32,7 +32,7 @@ class ControlWindow(QtWidgets.QMainWindow):
     def _init_ui(self):
         self.cb_run = QtWidgets.QCheckBox('Run', self)
         self.cb_run.move(20, 20)
-        self.cb_run.setChecked(True)
+        self.cb_run.setChecked(False)
         if self.cb_run.isChecked():
             self.main_window.resume()
         else:
