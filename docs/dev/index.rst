@@ -59,25 +59,25 @@ This part defines naming conventions and other style conventions.
     - *test method*: test\_... (method_name and small description e.g. test_root_failing)
 
 Workflow
-=========
+---------
 
 Here a useful workflow is described when a new feature should be implemented
 
-- Create documentation
+1. Create documentation
     - What is this feature
     - features
     - details?
     - ...
-- Define code (not implement)
+2. Define code (not implement)
     - What classes and methods are needed
-- Create tests
+3. Create tests
     - for every method
-- Implement code
-- Test
+4. Implement code
+5. Test
 
-.. todo:
+.. todo::
 
-    Better describe documentation. Add parts, where to include documentation, where to add changes, ...
+    Better describe `1. Create documentation`. Add parts, where to include documentation, where to add changes, ...
 
 
 
