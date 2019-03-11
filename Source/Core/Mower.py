@@ -32,7 +32,28 @@ class Mower:
     def __init__(self):
         pass
 
-    def rotate_wheel(self, wheel, deg):
+    def drive(self):
+        distance_to_drive = 0
+        deg_to_turn = 0
+        is_on = True
+        while is_on:
+            # calculate way
+
+            if distance_to_drive > 0:
+                pass
+                # keep moving
+            else:
+                pass
+                # stop wheels
+
+            if deg_to_turn > 0:
+                pass
+                # keep turning
+            else:
+                pass
+                # stop wheels
+
+    def rotate_wheels(self, time_left, time_right):
         """Implement this function in child class
         WHEEL can be self.LEFT_WHEEL or self.RIGHT_WHEEL"""
         logger.error("implement this function in child class")
@@ -51,11 +72,15 @@ class Mower:
 
     def drive_forward(self, distance):
         pass
+
         # TODO: implement
         # Calls rotate_wheel()
+
+    def drive_forward_till_obstacle(self):
+        # Necessary?
+        pass
 
     def turn(self, deg):
         pass
         # TODO: implement
         # Calls rotate_wheel()
-

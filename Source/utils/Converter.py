@@ -157,7 +157,7 @@ class Length(object):
         if self.__sub__(abs(other)).length == 0:
             return True
         else:
-           return False
+            return False
 
     def __ne__(self, other):
         if self.__sub__(abs(other)).length != 0:
