@@ -5,6 +5,11 @@ Dev guide
 This file is the entry point, when you start developing at this project. Read it careful and use it as
 reference.
 
+.. toctree::
+
+    getting_started
+    git
+
 Software
 --------
 
@@ -61,17 +66,23 @@ This part defines naming conventions and other style conventions.
 Workflow
 ---------
 
-Here a useful workflow is described when a new feature should be implemented
+This may be a useful workflow when you want to add a new feature
 
 1. Create documentation
+
     - What is this feature
     - features
     - details?
     - ...
+
 2. Define code (not implement)
+
     - What classes and methods are needed
+
 3. Create tests
+
     - for every method
+
 4. Implement code
 5. Test
 
