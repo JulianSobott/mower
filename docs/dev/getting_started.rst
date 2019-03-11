@@ -55,4 +55,4 @@ your browser. No advantage, maybe more easy, then searching in the file explorer
 Start coding
 ---------------
 
-Before you start coding, make sure that you read the :doc:`index` dev guide.
+Before you start coding, make sure that you read the :doc:`index`.
