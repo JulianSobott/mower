@@ -4,7 +4,7 @@
 @description:
 
 """
-import Simulation
+import simulation
 
 if __name__ == '__main__':
-    Simulation.setup_windows()
+    simulation.setup_windows()

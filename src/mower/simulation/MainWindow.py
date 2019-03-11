@@ -11,7 +11,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 from PyQt5 import QtGui
 
-from Simulation.Painting import Painter, Mower
+from simulation.Painting import Painter, Mower
 from utils import Singleton
 from .Logging import logger
 
