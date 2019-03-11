@@ -5,6 +5,10 @@ Dev guide
 This file is the entry point, when you start developing at this project. Read it careful and use it as
 reference.
 
+.. toctree::
+
+    getting_started
+
 Software
 --------
 
