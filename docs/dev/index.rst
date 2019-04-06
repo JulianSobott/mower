@@ -9,6 +9,7 @@ reference.
 
     getting_started
     git
+    todos
 
 Software
 --------
