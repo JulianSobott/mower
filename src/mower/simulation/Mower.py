@@ -14,6 +14,7 @@ from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
 from mower.utils import Length
 from mower.core import Mower as CoreMower
+from mower.simulation import paths
 
 
 class Mower(CoreMower.Mower, Renderable):
@@ -26,8 +27,7 @@ class Mower(CoreMower.Mower, Renderable):
         self.y = Length(0.25, Length.METER)
         self.rotation = 0   # like compass (0 - 360)
 
-        png_path = r"E:\Programmieren\mower\Source\Simulation\mower.png"
-        self.img_mower = QtGui.QImage(png_path)
+        self.img_mower = QtGui.QImage(paths.get_asset_path("mower.png"))
 
     def rotate_wheel(self, wheel, deg):
         distance = 2 * math.pi * self.WHEEL_RADIUS * deg/360
