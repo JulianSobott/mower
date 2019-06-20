@@ -5,7 +5,7 @@
 1px = 1cm = 0.01m
 """
 
-from utils.Logging import logger
+from mower.utils.Logging import logger
 
 
 PX2M_DIVIDER = 100

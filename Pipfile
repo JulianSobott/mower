@@ -9,6 +9,7 @@ verify_ssl = true
 sphinx = "*"
 pyqt5 = "*"
 sphinx-rtd-theme = "*"
+pyqt5-stubs = "*"
 
 [requires]
 python_version = "3.7"

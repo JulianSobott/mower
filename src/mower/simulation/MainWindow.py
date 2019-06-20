@@ -12,11 +12,11 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 from PyQt5 import QtGui
 
-from Simulation.Painting import Painter, Mower
+from mower.simulation.Painting import Painter
 from utils import Singleton
-from .Mower import Mower
-from .Map import Map
-from .Logging import logger
+from mower.simulation.Mower import Mower
+from mower.simulation.Map import Map
+from mower.simulation.Logging import logger
 
 
 __all__ = ["MainWindowInterface"]

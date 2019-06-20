@@ -13,7 +13,7 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from .Logging import logger
+from mower.simulation.Logging import logger
 
 
 class Painter(QtGui.QPainter):

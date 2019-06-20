@@ -10,8 +10,8 @@
     -----
 """
 
-from .Logging import logger
-from utils import Length
+from mower.core.Logging import logger
+from mower.utils import Length
 
 
 class Mower:

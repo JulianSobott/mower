@@ -10,13 +10,13 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 
-from .Logging import logger
-import Core
-from .Painting import Renderable
-from utils import Length
+from mower.simulation.Logging import logger
+from mower.simulation.Painting import Renderable
+from mower.utils import Length
+from mower.core import Mower as CoreMower
 
 
-class Mower(Core.Mower, Renderable):
+class Mower(CoreMower.Mower, Renderable):
 
     MOWER_COLOR = QtGui.QColor(150, 120, 150)
 
@@ -70,7 +70,6 @@ class Mower(Core.Mower, Renderable):
         The center of the mower is the x and y coordinates
         The mower is rotated around the center
         """
-
 
         rect = QRect(self.x.pixel(), self.y.pixel(), self.WIDTH.pixel(), self.LENGTH.pixel())
 

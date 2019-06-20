@@ -4,9 +4,9 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 
 
-from .MainWindow import MainWindowInterface
-from .ControlWindow import ControlWindow
-from .Logging import logger
+from mower.simulation.MainWindow import MainWindowInterface
+from mower.simulation.ControlWindow import ControlWindow
+from mower.simulation.Logging import logger
 
 
 UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)

@@ -8,13 +8,13 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 
-from .Logging import logger
-import Core
-from .Painting import Renderable
-from .Painting import Painter
+from mower.core import Map as CoreMap
+from mower.simulation.Logging import logger
+from mower.simulation.Painting import Renderable
+from mower.simulation.Painting import Painter
 
 
-class Map(Core.Map, Renderable, QtWidgets.QWidget):
+class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
     GRASS_COLOR = QtGui.QColor(0, 180, 0)
     CELL_OUTLINE_COLOR = QtGui.QColor(0, 0, 0)
 
@@ -22,7 +22,7 @@ class Map(Core.Map, Renderable, QtWidgets.QWidget):
         super().__init__()
         for x in range(100):
             for y in range(100):
-                self.cells.append(Core.GrasslandCell(x, y))
+                self.cells.append(CoreMap.GrasslandCell(x, y))
         self.pix_map = QtGui.QPixmap(1000, 1000)
         self.f_update_pix_map = True
         self.allow_draw_map = True
@@ -46,7 +46,7 @@ class Map(Core.Map, Renderable, QtWidgets.QWidget):
             for cell in self.cells:
                 rect = QRect((cell.x * cell.SIZE).pixel(), (cell.y * cell.SIZE).pixel(),
                              cell.SIZE.pixel(), cell.SIZE.pixel())
-                if isinstance(cell, Core.ObstacleCell):
+                if isinstance(cell, CoreMap.ObstacleCell):
                     pain.fillRect(rect, QtGui.QBrush(QtGui.QColor(180, 0, 0), QtCore.Qt.SolidPattern))
                 else:
                     pain.fillRect(rect, QtGui.QBrush(self.GRASS_COLOR, QtCore.Qt.SolidPattern))
@@ -63,7 +63,7 @@ class Map(Core.Map, Renderable, QtWidgets.QWidget):
     def mouseMoveEvent(self, mouse_event):
         if self.allow_draw_map and self.drawing:
             local_pos = mouse_event.localPos()
-            self.cells[int(local_pos.x())] = Core.ObstacleCell(local_pos.x(), local_pos.y())
+            self.cells[int(local_pos.x())] = CoreMap.ObstacleCell(local_pos.x(), local_pos.y())
 
     def mouseReleaseEvent(self, mouse_event):
         self.drawing = False

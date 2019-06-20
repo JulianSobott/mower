@@ -8,8 +8,8 @@ import time
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 
-from .MainWindow import MainWindowInterface
-from .Logging import logger
+from mower.simulation.MainWindow import MainWindowInterface
+from mower.simulation.Logging import logger
 
 
 class ControlWindow(QtWidgets.QMainWindow):
