@@ -18,6 +18,7 @@ def setup_windows():
 
     main_window = MainWindowInterface()
     control_window = ControlWindow(main_window)
+    main_window.set_control_window(control_window)
     main_loop = setup_main_loop(main_window)
     logger.debug("Start simulation")
     sys.exit(app.exec())
