@@ -7,6 +7,8 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
+import numpy as np
+import skimage.draw
 
 from mower.core import Map as CoreMap
 from mower.simulation.Logging import logger
@@ -20,53 +22,54 @@ class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
-        for x in range(100):
-            for y in range(100):
-                self.cells.append(CoreMap.GrasslandCell(x, y))
+        self.size = (1000, 1000)
         self.pix_map = QtGui.QPixmap(1000, 1000)
-        self.f_update_pix_map = True
+
+        self.data = np.random.rand(self.size[0]*self.size[1])*255
+        self.data = np.reshape(self.data, (self.size[1], self.size[0]))
+
+        self.data = np.zeros((1000, 1000))
+        self.data = np.reshape(self.data, (self.size[1], self.size[0]))
+        #self.data[0:100][0:100] = 255
+        self.data = np.require(self.data, np.uint8, 'C')
+
+        self.color_table = []
+        for i in range(256):
+            self.color_table.append(QtGui.qRgb(i, i/2, 1))
+
         self.allow_draw_map = True
-        self.drawing = False
+        self.last_pos = None
 
     def update_rendering(self, passed_time):
         super().update()
         pass
 
     def draw(self, painter):
-        if self.f_update_pix_map:
-            self.f_update_pix_map = False
-            self.update_pix_map()
-            painter.drawPixmap(0, 0, self.pix_map)
-        else:
-            painter.drawPixmap(0, 0, self.pix_map)
-
-    def update_pix_map(self):
-        with Painter(self.pix_map) as pain:
-            self.pix_map.fill(QtCore.Qt.gray)
-            for cell in self.cells:
-                rect = QRect((cell.x * cell.SIZE).pixel(), (cell.y * cell.SIZE).pixel(),
-                             cell.SIZE.pixel(), cell.SIZE.pixel())
-                if isinstance(cell, CoreMap.ObstacleCell):
-                    pain.fillRect(rect, QtGui.QBrush(QtGui.QColor(180, 0, 0), QtCore.Qt.SolidPattern))
-                else:
-                    pain.fillRect(rect, QtGui.QBrush(self.GRASS_COLOR, QtCore.Qt.SolidPattern))
-                pain.setPen(self.CELL_OUTLINE_COLOR)
-                pain.drawRect(rect)
+        qi = QtGui.QImage(self.data.data, self.size[0], self.size[1], QtGui.QImage.Format_Indexed8)
+        qi.setColorTable(self.color_table)
+        painter.drawImage(0, 0, qi)
+        self.pix_map = QtGui.QPixmap.fromImage(qi)
+        #painter.drawPixmap(0, 0, self.pix_map)
 
     def set_draw_map(self, allow):
         self.allow_draw_map = allow
 
     def mousePressEvent(self, mouse_event):
-        logger.debug("Mouse pressed!")
-        self.drawing = True
+        pass
 
     def mouseMoveEvent(self, mouse_event):
-        if self.allow_draw_map and self.drawing:
-            local_pos = mouse_event.localPos()
-            self.cells[int(local_pos.x())] = CoreMap.ObstacleCell(local_pos.x(), local_pos.y())
+        local_pos = mouse_event.localPos()
+        if self.last_pos:
+            # TODO: weighted solution
+            # Lines are better because they ignore too fast mouse movement
+            rr, cc, val = skimage.draw.line_aa(int(self.last_pos.y()), int(self.last_pos.x()), int(local_pos.y()),
+                                               int(local_pos.x()))
+            self.data[rr, cc] = val * 255
+        else:
+            stroke_width = 8
+            self.data[int(local_pos.y()) - stroke_width//2: int(local_pos.y()) + stroke_width//2,
+                        int(local_pos.x()) - stroke_width // 2: int(local_pos.x()) + stroke_width // 2] = 255
+        self.last_pos = local_pos
 
     def mouseReleaseEvent(self, mouse_event):
-        self.drawing = False
-        self.update_pix_map()
-        logger.debug("Update pixmap")
-
+        pass
