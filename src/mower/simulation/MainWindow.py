@@ -69,6 +69,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def mouseReleaseEvent(self, mouse_event):
         self.map.mouseReleaseEvent(mouse_event)
 
+    def wheelEvent(self, wheel_event):
+        self.map.wheelEvent(wheel_event)
+
 
 class MainWindowInterface(metaclass=Singleton):
     """Class that communicates with MainWindow. contains all public functions"""
