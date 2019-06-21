@@ -6,36 +6,35 @@
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QRect
 import numpy as np
 import skimage.draw
 
 from mower.core import Map as CoreMap
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
-from mower.simulation.Painting import Painter
 
 
 class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
-    GRASS_COLOR = QtGui.QColor(0, 180, 0)
-    CELL_OUTLINE_COLOR = QtGui.QColor(0, 0, 0)
+    BACKGROUND_COLOR = 0
+    GRASS_COLOR = 1
+    OBSTACLE_COLOR = 2
+    CELL_OUTLINE_COLOR = 3
+
+    color_table = [
+        QtGui.qRgb(100, 100, 100),
+        QtGui.qRgb(0, 255, 0),
+        QtGui.qRgb(100, 50, 0),
+        QtGui.qRgb(0, 0, 0)
+    ]
 
     def __init__(self):
         super().__init__()
-        self.size = (1000, 1000)
-        self.pix_map = QtGui.QPixmap(1000, 1000)
+        self.size = (800, 1000)
+        self.pix_map = QtGui.QPixmap(self.size[0], self.size[1])
 
-        self.data = np.random.rand(self.size[0]*self.size[1])*255
+        self.data = np.zeros((self.size[1], self.size[0]))
         self.data = np.reshape(self.data, (self.size[1], self.size[0]))
-
-        self.data = np.zeros((1000, 1000))
-        self.data = np.reshape(self.data, (self.size[1], self.size[0]))
-        #self.data[0:100][0:100] = 255
         self.data = np.require(self.data, np.uint8, 'C')
-
-        self.color_table = []
-        for i in range(256):
-            self.color_table.append(QtGui.qRgb(i, i/2, 1))
 
         self.allow_draw_map = True
 
@@ -79,35 +78,18 @@ class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
         last_global_pos = self.transformation.inverted()[0].map(self.last_local_pos)
 
         if self.mouse_move_mode == "DRAW":
-            if self.last_local_pos:
-                # TODO: weighted solution
-                # Lines are better because they ignore too fast mouse movement
-                # for i in range(1, 100, 10):
-                #     rr, cc = skimage.draw.line(int(last_global_pos.y() + i), int(last_global_pos.x() + i),
-                #                                int(global_pos.y()+ i),
-                #                                        int(global_pos.x() + i))
-                #     self.data[rr, cc] = 255 // (i/10)
-                # poly = np.array((
-                #     (30, 200),
-                #     (50, 210),
-                #     (90, 90),
-                #     (70, 70),
-                # ))
-                # #rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
-
-                self.draw_thick_line(last_global_pos, global_pos, 10, self.data)
-            else:
-                stroke_width = 8
-                self.data[int(global_pos.y()) - stroke_width//2: int(global_pos.y()) + stroke_width//2,
-                            int(global_pos.x()) - stroke_width // 2: int(global_pos.x()) + stroke_width // 2] = 255
-
+            stroke_width = 20   # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
+            try:
+                self.draw_thick_line(last_global_pos, global_pos, stroke_width, self.data, self.OBSTACLE_COLOR)
+            except IndexError:
+                pass    # Drawing outside the window
         else:
             delta = global_pos - last_global_pos
             self.transformation.translate(delta.x(), delta.y())
         self.last_local_pos = local_pos
 
     @staticmethod
-    def draw_thick_line(pos1: QtCore.QPoint, pos2: QtCore.QPoint, thickness: int, data: np.array):
+    def draw_thick_line(pos1: QtCore.QPoint, pos2: QtCore.QPoint, thickness: int, data: np.array, color_idx=0):
         # TODO: find way that ensures, that line is always thick enough (take angular in account)
         poly = np.array((
             (int(pos1.y() + thickness//2), int(pos1.x() + thickness//2)),
@@ -116,7 +98,7 @@ class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
             (int(pos1.y() - thickness // 2), int(pos1.x() - thickness // 2)),
         ))
         rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
-        data[rr, cc] = 255
+        data[rr, cc] = color_idx
 
     def mouseReleaseEvent(self, mouse_event):
         self.last_local_pos = None
