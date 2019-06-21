@@ -101,3 +101,7 @@ class MainWindowInterface(metaclass=Singleton):
     def set_draw_map(self, allow):
         self._main_window.set_draw_map(allow)
 
+    @property
+    def map(self):
+        return self._main_window.map
+

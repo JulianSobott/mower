@@ -38,7 +38,9 @@ class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
             self.color_table.append(QtGui.qRgb(i, i/2, 1))
 
         self.allow_draw_map = True
-        self.last_pos = None
+
+        self.last_local_pos = None
+        # Position relative to window (All transformations are ignored and must be mapped)
         self.zoom = 1
         self.zoom_factor = 0.1
 
@@ -68,36 +70,56 @@ class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
             # right
             self.mouse_move_mode = "TRANSLATE"
 
-        self.last_pos = mouse_event.localPos()
+        self.last_local_pos = mouse_event.localPos()
 
     def mouseMoveEvent(self, mouse_event):
         local_pos = mouse_event.localPos()
-        # TODO: proper translation into global space
-        global_pos = self.transformation.map(local_pos)
-        #logger.debug(local_pos)
-        #logger.debug(global_pos)
+
+        global_pos = self.transformation.inverted()[0].map(local_pos)
+        last_global_pos = self.transformation.inverted()[0].map(self.last_local_pos)
 
         if self.mouse_move_mode == "DRAW":
-            if self.last_pos:
+            if self.last_local_pos:
                 # TODO: weighted solution
                 # Lines are better because they ignore too fast mouse movement
-                rr, cc, val = skimage.draw.line_aa(int(self.last_pos.y()), int(self.last_pos.x()), int(global_pos.y()),
-                                                   int(global_pos.x()))
-                self.data[rr, cc] = val * 255
+                # for i in range(1, 100, 10):
+                #     rr, cc = skimage.draw.line(int(last_global_pos.y() + i), int(last_global_pos.x() + i),
+                #                                int(global_pos.y()+ i),
+                #                                        int(global_pos.x() + i))
+                #     self.data[rr, cc] = 255 // (i/10)
+                # poly = np.array((
+                #     (30, 200),
+                #     (50, 210),
+                #     (90, 90),
+                #     (70, 70),
+                # ))
+                # #rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
+
+                self.draw_thick_line(last_global_pos, global_pos, 10, self.data)
             else:
                 stroke_width = 8
                 self.data[int(global_pos.y()) - stroke_width//2: int(global_pos.y()) + stroke_width//2,
                             int(global_pos.x()) - stroke_width // 2: int(global_pos.x()) + stroke_width // 2] = 255
 
         else:
-            logger.debug(self.last_pos)
-            delta = local_pos - self.last_pos
-            logger.debug(delta)
+            delta = global_pos - last_global_pos
             self.transformation.translate(delta.x(), delta.y())
-        self.last_pos = local_pos
+        self.last_local_pos = local_pos
+
+    @staticmethod
+    def draw_thick_line(pos1: QtCore.QPoint, pos2: QtCore.QPoint, thickness: int, data: np.array):
+        # TODO: find way that ensures, that line is always thick enough (take angular in account)
+        poly = np.array((
+            (int(pos1.y() + thickness//2), int(pos1.x() + thickness//2)),
+            (int(pos2.y() + thickness//2), int(pos2.x() + thickness//2)),
+            (int(pos2.y() - thickness // 2), int(pos2.x() - thickness // 2)),
+            (int(pos1.y() - thickness // 2), int(pos1.x() - thickness // 2)),
+        ))
+        rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
+        data[rr, cc] = 255
 
     def mouseReleaseEvent(self, mouse_event):
-        self.last_pos = None
+        self.last_local_pos = None
 
     def wheelEvent(self, event: QtGui.QWheelEvent):
         num_degree = event.angleDelta().y()

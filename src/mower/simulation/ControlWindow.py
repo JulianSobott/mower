@@ -47,8 +47,20 @@ class ControlWindow(QtWidgets.QMainWindow):
         btn_draw_map.move(20, 70)
         btn_draw_map.clicked.connect(self._click_draw_map)
 
+        self.lbl_mouse_local = QtWidgets.QLabel("Local: ", self)
+        self.lbl_mouse_local.move(20, 100)
+
+        self.lbl_mouse_global = QtWidgets.QLabel("Global: ", self)
+        self.lbl_mouse_global.move(20, 130)
+
     def update(self):
         self.update_fps()
+        mouse_pos = self.main_window.map.last_local_pos
+        if mouse_pos:
+            self.lbl_mouse_local.setText(f"Local: {mouse_pos.x()}, {mouse_pos.y()}")
+            global_mouse = self.main_window.map.transformation.map(mouse_pos)
+            global_mouse = self.main_window.map.transformation.inverted()[0].map(mouse_pos)
+            self.lbl_mouse_global.setText(f"Global: {global_mouse.x()}, {global_mouse.y()}")
 
     def update_fps(self):
         curr_time = time.time()
