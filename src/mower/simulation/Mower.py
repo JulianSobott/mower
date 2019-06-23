@@ -64,6 +64,7 @@ class Mower(core.Mower, Renderable):
 
     def update_rendering(self, passed_time):
         super().update()
+        # TODO:
         #self.rotate_wheel(self.RIGHT_WHEEL, 1)
 
     def draw(self, painter):

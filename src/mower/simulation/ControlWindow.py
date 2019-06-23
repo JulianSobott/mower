@@ -6,10 +6,8 @@
 import time
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QRect
 
 from mower.simulation import BaseWindow
-from mower.simulation.MainWindow import MainWindowInterface
 from mower.simulation.Logging import logger
 from mower.simulation.global_window import GlobalWindowInterface
 from mower.simulation.local_window import LocalWindowInterface
@@ -49,12 +47,6 @@ class ControlWindow(BaseWindow):
         btn_draw_map.move(20, 70)
         btn_draw_map.clicked.connect(self._click_draw_map)
 
-        self.lbl_mouse_local = QtWidgets.QLabel("Local: ", self)
-        self.lbl_mouse_local.move(20, 100)
-
-        self.lbl_mouse_global = QtWidgets.QLabel("Global: ", self)
-        self.lbl_mouse_global.move(20, 130)
-
     def update(self):
         self.update_fps()
 
@@ -69,6 +61,6 @@ class ControlWindow(BaseWindow):
 
     def _click_draw_map(self):
         self.cb_run.setChecked(False)
-        self.global_window.set_draw_map(True)
+        # self.global_window.set_draw_map(True)
 
 

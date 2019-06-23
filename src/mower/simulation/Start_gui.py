@@ -5,7 +5,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 
 from mower import simulation
-from mower.simulation.MainWindow import MainWindowInterface
 from mower.simulation.ControlWindow import ControlWindow
 from mower.simulation.Logging import logger
 from mower.simulation.global_window import GlobalWindowInterface
@@ -18,8 +17,9 @@ def setup_windows():
     """All object must be stored in an object to prevent garbage collection"""
     app = QtWidgets.QApplication(sys.argv)
 
-    global_window = GlobalWindowInterface()
-    local_window = LocalWindowInterface()
+    mower = simulation.Mower()
+    global_window = GlobalWindowInterface(mower)
+    local_window = LocalWindowInterface(mower)
     control_window = ControlWindow(local_window, global_window)
     global_window.set_control_window(control_window)
     local_window.set_control_window(control_window)

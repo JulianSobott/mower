@@ -34,9 +34,9 @@ class GlobalWindow(simulation.BaseWindow):
     TITLE = "Global Window"
     SIZE = 510, 50, 500, 600
 
-    def __init__(self):
+    def __init__(self, mower: simulation.Mower):
         super().__init__()
-        self.mower = simulation.Mower()
+        self.mower = mower
         self.global_map = simulation.Map([self.mower])
         self.items.append(self.global_map)
         self.event_receivers.append(self.global_map)
@@ -46,6 +46,6 @@ class GlobalWindow(simulation.BaseWindow):
 
 class GlobalWindowInterface(simulation.BaseWindowInterface):
 
-    def __init__(self):
-        super().__init__(GlobalWindow())
+    def __init__(self, mower: simulation.Mower):
+        super().__init__(GlobalWindow(mower))
         self._control_window = None

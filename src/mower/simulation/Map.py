@@ -57,7 +57,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
     def update_rendering(self, passed_time):
         super().update()
-        pass
+        for item in self.items:
+            item.update_rendering(passed_time)
 
     def draw(self, painter):
         qi = QtGui.QImage(self.data.data, self.size[0], self.size[1], QtGui.QImage.Format_Indexed8)
