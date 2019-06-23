@@ -33,7 +33,7 @@ class Map:
 
     #: How big is a cell in the real world. The smaller the value the more precise is the map, but also the bigger it
     #: gets (memory).
-    CELL_SIZE = Length(10, Length.CENTIMETER)
+    CELL_SIZE = Length(1000, Length.CENTIMETER)
 
     def __init__(self):
 
@@ -41,7 +41,7 @@ class Map:
         self.size = (Length(50, Length.METER), Length(50, Length.METER))
 
         #: The array shape, based on CELL_SIZE
-        self.shape = (self.size[0] / self.CELL_SIZE).pixel(), (self.size[1] / self.CELL_SIZE).pixel()
+        self.shape = int((self.size[0] / self.CELL_SIZE).pixel()), int((self.size[1] / self.CELL_SIZE).pixel())
 
         #: The cell type for every cell
         self.cells = np.zeros(self.shape)

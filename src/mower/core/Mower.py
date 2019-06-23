@@ -87,6 +87,6 @@ class Mower:
         # TODO: implement
         # Calls rotate_wheel()
 
-    def _load_map(self) -> core.Map:
+    def _load_map(self) -> 'core.Map':
         """If a map is saved load it else create a new one."""
         return core.Map()

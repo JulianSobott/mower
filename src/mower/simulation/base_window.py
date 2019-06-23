@@ -34,6 +34,7 @@ from typing import List
 from PyQt5 import QtWidgets, QtCore
 
 from mower.simulation.Painting import Renderable, Painter
+from mower.utils import Singleton
 
 
 class EventReceiverWidget:
@@ -58,7 +59,7 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
     SIZE = QtCore.QRect(0, 0, 500, 600)
 
     def __init__(self):
-        super().__init__(parent=None, flags=None)
+        super().__init__(parent=None)
 
         self.event_receivers: List[EventReceiverWidget] = []
         self.items: List[Renderable] = []
@@ -95,5 +96,28 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
             receiver.__getattribute__(function.__name__)(event)
 
 
+class BaseWindowInterface(metaclass=Singleton):
+    """Class that communicates with MainWindow. contains all public functions"""
 
+    def __init__(self, window: BaseWindow):
+        self._is_paused = False
+        self._window: BaseWindow = window
+        self._control_window: BaseWindow = None
 
+    def update(self):
+        """Update all items and repaints the window"""
+        self._control_window.update()
+        if not self._is_paused:
+            self._window.update_items()
+
+    def pause(self):
+        self._is_paused = True
+
+    def resume(self):
+        self._is_paused = False
+
+    def toggle_pause(self):
+        self._is_paused = not self._is_paused
+
+    def set_control_window(self, control_window):
+        self._control_window = control_window

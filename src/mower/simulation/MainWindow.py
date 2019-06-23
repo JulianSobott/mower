@@ -32,7 +32,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.items = []
         self.mower = simulation.Mower()
-        self.map = simulation.Map(self.mower)
+        self.map = simulation.Map()
         self.items.append(self.map)
 
         self.last_update = time.time()

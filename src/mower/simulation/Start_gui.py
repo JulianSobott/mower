@@ -7,7 +7,7 @@ from PyQt5.QtCore import QTimer
 from mower.simulation.MainWindow import MainWindowInterface
 from mower.simulation.ControlWindow import ControlWindow
 from mower.simulation.Logging import logger
-
+from mower.simulation.global_window import GlobalWindowInterface
 
 UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)
 
@@ -16,6 +16,7 @@ def setup_windows():
     """All object must be stored in an object to prevent garbage collection"""
     app = QtWidgets.QApplication(sys.argv)
 
+    global_window = GlobalWindowInterface()
     main_window = MainWindowInterface()
     control_window = ControlWindow(main_window)
     main_window.set_control_window(control_window)
