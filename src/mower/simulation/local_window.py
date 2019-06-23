@@ -35,10 +35,12 @@ class LocalWindow(simulation.BaseWindow):
     def __init__(self):
         super().__init__()
         self.mower = simulation.Mower()
-        #self.local_map: simulation.Map = self.mower.local_map
-        #self.local_map.items.append(self.mower)
-        #self.items.append(self.local_map)
-        #self.event_receivers.append(self.local_map)
+        self.local_map: simulation.Map = self.mower.local_map
+        self.local_map.items.append(self.mower)
+        self.items.append(self.local_map)
+        self.event_receivers.append(self.local_map)
+
+        self.show()
 
 
 class LocalWindowInterface(simulation.BaseWindowInterface):

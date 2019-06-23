@@ -41,6 +41,8 @@ class GlobalWindow(simulation.BaseWindow):
         self.items.append(self.global_map)
         self.event_receivers.append(self.global_map)
 
+        self.show()
+
 
 class GlobalWindowInterface(simulation.BaseWindowInterface):
 

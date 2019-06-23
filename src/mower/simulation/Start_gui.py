@@ -20,7 +20,6 @@ def setup_windows():
 
     global_window = GlobalWindowInterface()
     local_window = LocalWindowInterface()
-    main_window = MainWindowInterface()
     control_window = ControlWindow(local_window, global_window)
     global_window.set_control_window(control_window)
     local_window.set_control_window(control_window)

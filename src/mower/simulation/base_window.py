@@ -66,7 +66,10 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
         self.last_update = time.time()
         self.setWindowTitle(self.TITLE)
         self.setGeometry(QtCore.QRect(*self.SIZE))
-        self.show()
+
+    def paintEvent(self, e):
+        """Overridden from super()"""
+        self._draw_items()
 
     def update_items(self):
         time_passed = time.time() - self.last_update
