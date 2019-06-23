@@ -14,8 +14,8 @@ from PyQt5 import QtGui
 
 from mower.simulation.Painting import Painter
 from utils import Singleton
-from mower.simulation.Mower import Mower
-from mower.simulation.Map import Map
+from mower.simulation import Mower as SimMower
+from mower import simulation
 from mower.simulation.Logging import logger
 
 
@@ -31,9 +31,9 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__(parent=None)
 
         self.items = []
-        self.map = Map()
+        self.mower = simulation.Mower()
+        self.map = simulation.Map(self.mower)
         self.items.append(self.map)
-        self.items.append(Mower())
 
         self.last_update = time.time()
 

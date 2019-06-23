@@ -12,6 +12,7 @@
 
 from mower.core.Logging import logger
 from mower.utils import Length
+from mower import core
 
 
 class Mower:
@@ -30,7 +31,8 @@ class Mower:
     WHEEL_DISTANCE = WIDTH  # distance from 1 wheel to the other. measured from both centers
 
     def __init__(self):
-        pass
+        #: Map that contains all data that the mower is aware of
+        self.local_map: core.Map = self._load_map()
 
     def drive(self):
         distance_to_drive = 0
@@ -84,3 +86,7 @@ class Mower:
         pass
         # TODO: implement
         # Calls rotate_wheel()
+
+    def _load_map(self) -> core.Map:
+        """If a map is saved load it else create a new one."""
+        return core.Map()

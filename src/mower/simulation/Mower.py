@@ -13,19 +13,19 @@ from PyQt5.QtCore import QRect
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
 from mower.utils import Length
-from mower.core import Mower as CoreMower
+from mower import core
 from mower.simulation import paths
 
 
-class Mower(CoreMower.Mower, Renderable):
+class Mower(core.Mower, Renderable):
 
     MOWER_COLOR = QtGui.QColor(150, 120, 150)
 
     def __init__(self):
         super().__init__()
-        self.x = Length(0.15, Length.METER)
-        self.y = Length(0.25, Length.METER)
-        self.rotation = 0   # like compass (0 - 360)
+        self.x = Length(2, Length.METER)
+        self.y = Length(3, Length.METER)
+        self.rotation = 90   # like compass (0 - 360)
 
         self.img_mower = QtGui.QImage(paths.get_asset_path("mower.png"))
 
@@ -84,7 +84,7 @@ class Mower(CoreMower.Mower, Renderable):
         transform.rotate(self.rotation)
         transform.translate(-center_point.x(), -center_point.y())
 
-        painter.setTransform(transform)
+        painter.setTransform(transform, True)
 
         # painter.fillRect(rect, QtGui.QBrush(self.MOWER_COLOR, QtCore.Qt.SolidPattern))
         painter.drawImage(rect, self.img_mower)

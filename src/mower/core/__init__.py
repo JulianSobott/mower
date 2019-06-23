@@ -1,1 +1,2 @@
-from mower.core import Mower
+from mower.core.Mower import Mower
+from mower.core.Map import Map

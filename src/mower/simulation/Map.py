@@ -9,12 +9,13 @@ from PyQt5 import QtWidgets
 import numpy as np
 import skimage.draw
 
-from mower.core import Map as CoreMap
+from mower import core
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
+from mower import simulation
 
 
-class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
+class Map(core.Map, Renderable, QtWidgets.QWidget):
     BACKGROUND_COLOR = 0
     GRASS_COLOR = 1
     OBSTACLE_COLOR = 2
@@ -27,8 +28,9 @@ class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
         QtGui.qRgb(0, 0, 0)
     ]
 
-    def __init__(self):
+    def __init__(self, mower: simulation.Mower):
         super().__init__()
+        self.mower = mower
         self.size = (800, 1000)
         self.pix_map = QtGui.QPixmap(self.size[0], self.size[1])
 
@@ -57,6 +59,7 @@ class Map(CoreMap.Map, Renderable, QtWidgets.QWidget):
         self.pix_map = QtGui.QPixmap.fromImage(qi)
         painter.setTransform(self.transformation)
         painter.drawPixmap(0, 0, self.pix_map)
+        self.mower.draw(painter)
 
     def set_draw_map(self, allow):
         self.allow_draw_map = allow
