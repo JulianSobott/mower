@@ -9,6 +9,7 @@ from mower.simulation.MainWindow import MainWindowInterface
 from mower.simulation.ControlWindow import ControlWindow
 from mower.simulation.Logging import logger
 from mower.simulation.global_window import GlobalWindowInterface
+from mower.simulation.local_window import LocalWindowInterface
 
 UPDATE_INTERVAL = 10    # in milliseconds (10^=60fps ?)
 
@@ -18,11 +19,12 @@ def setup_windows():
     app = QtWidgets.QApplication(sys.argv)
 
     global_window = GlobalWindowInterface()
+    local_window = LocalWindowInterface()
     main_window = MainWindowInterface()
-    control_window = ControlWindow(main_window)
-    main_window.set_control_window(control_window)
+    control_window = ControlWindow(local_window, global_window)
     global_window.set_control_window(control_window)
-    main_loop = setup_main_loop([main_window, global_window])
+    local_window.set_control_window(control_window)
+    main_loop = setup_main_loop([local_window, global_window])
     logger.debug("Start simulation")
     sys.exit(app.exec())
 

@@ -8,24 +8,22 @@ import time
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect
 
+from mower.simulation import BaseWindow
 from mower.simulation.MainWindow import MainWindowInterface
 from mower.simulation.Logging import logger
+from mower.simulation.global_window import GlobalWindowInterface
+from mower.simulation.local_window import LocalWindowInterface
 
 
-class ControlWindow(QtWidgets.QMainWindow):
+class ControlWindow(BaseWindow):
     TITLE = "Mower simulation CONTROL"
-    SIZE = QRect(1030, 50, 500, 600)
+    SIZE = (1030, 50, 500, 600)
 
-    def __init__(self, main_window: MainWindowInterface):
-        super().__init__(parent=None)
-
-        self.setWindowTitle(self.TITLE)
-        self.setGeometry(self.SIZE)
-
-        self.last_update = time.time()
+    def __init__(self, local_window: LocalWindowInterface, global_window: GlobalWindowInterface):
+        super().__init__()
         self.last_shown = 0
-
-        self.main_window = main_window
+        self.local_window = local_window
+        self.global_window = global_window
         self._init_ui()
         self.show()
 
@@ -34,10 +32,14 @@ class ControlWindow(QtWidgets.QMainWindow):
         self.cb_run.move(20, 20)
         self.cb_run.setChecked(True)
         if self.cb_run.isChecked():
-            self.main_window.resume()
+            self.local_window.resume()
+            self.global_window.resume()
         else:
-            self.main_window.pause()
-        self.cb_run.stateChanged.connect(self.main_window.toggle_pause)
+            self.local_window.pause()
+            self.global_window.pause()
+
+        self.cb_run.stateChanged.connect(self.local_window.toggle_pause)
+        self.cb_run.stateChanged.connect(self.global_window.toggle_pause)
 
         self.lbl_fps = QtWidgets.QLabel("FPS: ", self)
         self.lbl_fps.move(20, 40)
@@ -55,11 +57,6 @@ class ControlWindow(QtWidgets.QMainWindow):
 
     def update(self):
         self.update_fps()
-        mouse_pos = self.main_window.map.last_local_pos
-        if mouse_pos:
-            self.lbl_mouse_local.setText(f"Local: {mouse_pos.x()}, {mouse_pos.y()}")
-            global_mouse = self.main_window.map.transformation.inverted()[0].map(mouse_pos)
-            self.lbl_mouse_global.setText(f"Global: {global_mouse.x()}, {global_mouse.y()}")
 
     def update_fps(self):
         curr_time = time.time()
@@ -72,6 +69,6 @@ class ControlWindow(QtWidgets.QMainWindow):
 
     def _click_draw_map(self):
         self.cb_run.setChecked(False)
-        self.main_window.set_draw_map(True)
+        self.global_window.set_draw_map(True)
 
 

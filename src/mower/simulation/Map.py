@@ -30,11 +30,12 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         QtGui.qRgb(0, 0, 0)
     ]
 
-    def __init__(self, items: List[Renderable] = ()):
+    def __init__(self, items: List[Renderable] = []):
         """
 
         :param items: A list of all items that are rendered with transformations on the map.
         """
+        super().__init__()
         super(core.Map, self).__init__()
         self.size = (800, 1000)
         self.pix_map = QtGui.QPixmap(self.size[0], self.size[1])
@@ -63,8 +64,10 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         qi.setColorTable(self.color_table)
         # painter.drawImage(0, 0, qi)
         self.pix_map = QtGui.QPixmap.fromImage(qi)
-        painter.setTransform(self.transformation)
+        painter.setTransform(self.transformation, combine=True)
         painter.drawPixmap(0, 0, self.pix_map)
+        for item in self.items:
+            item.draw(painter)
 
     def set_draw_map(self, allow):
         self.allow_draw_map = allow

@@ -13,7 +13,7 @@ from PyQt5.QtCore import QRect
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
 from mower.utils import Length
-from mower import core
+from mower import core, simulation
 from mower.simulation import paths
 
 
@@ -26,6 +26,7 @@ class Mower(core.Mower, Renderable):
         self.x = Length(2, Length.METER)
         self.y = Length(3, Length.METER)
         self.rotation = 90   # like compass (0 - 360)
+        self.local_map: simulation.Map
 
         self.img_mower = QtGui.QImage(paths.get_asset_path("mower.png"))
 
@@ -90,3 +91,6 @@ class Mower(core.Mower, Renderable):
         painter.drawImage(rect, self.img_mower)
 
         painter.resetTransform()
+
+    def _load_map(self) -> 'simulation.Map':
+        return simulation.Map()

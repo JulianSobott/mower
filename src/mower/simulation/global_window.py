@@ -47,7 +47,3 @@ class GlobalWindowInterface(simulation.BaseWindowInterface):
     def __init__(self):
         super().__init__(GlobalWindow())
         self._control_window = None
-
-    def update(self):
-        self._control_window.update()
-        super().update()
