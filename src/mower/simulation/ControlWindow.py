@@ -14,7 +14,7 @@ from mower.simulation.Logging import logger
 
 class ControlWindow(QtWidgets.QMainWindow):
     TITLE = "Mower simulation CONTROL"
-    SIZE = QRect(600, 100, 500, 600)
+    SIZE = QRect(1030, 50, 500, 600)
 
     def __init__(self, main_window: MainWindowInterface):
         super().__init__(parent=None)
@@ -58,7 +58,6 @@ class ControlWindow(QtWidgets.QMainWindow):
         mouse_pos = self.main_window.map.last_local_pos
         if mouse_pos:
             self.lbl_mouse_local.setText(f"Local: {mouse_pos.x()}, {mouse_pos.y()}")
-            global_mouse = self.main_window.map.transformation.map(mouse_pos)
             global_mouse = self.main_window.map.transformation.inverted()[0].map(mouse_pos)
             self.lbl_mouse_global.setText(f"Global: {global_mouse.x()}, {global_mouse.y()}")
 

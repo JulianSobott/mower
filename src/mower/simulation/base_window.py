@@ -56,7 +56,7 @@ class EventReceiverWidget:
 class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
 
     TITLE = "set Title in inherited class"
-    SIZE = QtCore.QRect(0, 0, 500, 600)
+    SIZE = (0, 0, 500, 600)
 
     def __init__(self):
         super().__init__(parent=None)
@@ -65,7 +65,7 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
         self.items: List[Renderable] = []
         self.last_update = time.time()
         self.setWindowTitle(self.TITLE)
-        self.setGeometry(self.SIZE)
+        self.setGeometry(QtCore.QRect(*self.SIZE))
         self.show()
 
     def update_items(self):
@@ -102,7 +102,7 @@ class BaseWindowInterface(metaclass=Singleton):
     def __init__(self, window: BaseWindow):
         self._is_paused = False
         self._window: BaseWindow = window
-        self._control_window: BaseWindow = None
+        self._control_window = None
 
     def update(self):
         """Update all items and repaints the window"""

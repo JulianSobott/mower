@@ -32,6 +32,7 @@ class GlobalWindow(simulation.BaseWindow):
 
     """
     TITLE = "Global Window"
+    SIZE = 510, 50, 500, 600
 
     def __init__(self):
         super().__init__()
@@ -45,3 +46,8 @@ class GlobalWindowInterface(simulation.BaseWindowInterface):
 
     def __init__(self):
         super().__init__(GlobalWindow())
+        self._control_window = None
+
+    def update(self):
+        self._control_window.update()
+        super().update()

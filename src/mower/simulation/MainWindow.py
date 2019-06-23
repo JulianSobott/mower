@@ -13,7 +13,7 @@ from PyQt5.QtCore import QRect
 from PyQt5 import QtGui
 
 from mower.simulation.Painting import Painter
-from utils import Singleton
+from mower.utils import Singleton
 from mower.simulation import Mower as SimMower
 from mower import simulation
 from mower.simulation.Logging import logger
@@ -25,7 +25,7 @@ __all__ = ["MainWindowInterface"]
 class MainWindow(QtWidgets.QMainWindow):
     """Window responsible for rendering the simulation and calling the update function"""
     TITLE = "Mower simulation"
-    SIZE = QRect(0, 0, 500, 600)
+    SIZE = QRect(0, 50, 500, 600)
 
     def __init__(self):
         super().__init__(parent=None)

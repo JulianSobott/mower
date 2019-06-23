@@ -1,9 +1,10 @@
 import sys
+from typing import List
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 
-
+from mower import simulation
 from mower.simulation.MainWindow import MainWindowInterface
 from mower.simulation.ControlWindow import ControlWindow
 from mower.simulation.Logging import logger
@@ -20,15 +21,17 @@ def setup_windows():
     main_window = MainWindowInterface()
     control_window = ControlWindow(main_window)
     main_window.set_control_window(control_window)
-    main_loop = setup_main_loop(main_window)
+    global_window.set_control_window(control_window)
+    main_loop = setup_main_loop([main_window, global_window])
     logger.debug("Start simulation")
     sys.exit(app.exec())
 
 
-def setup_main_loop(main_window):
+def setup_main_loop(windows: List[simulation.BaseWindowInterface]):
     """timer must be returned and saved to prevent garbage collection"""
     timer = QTimer()
-    timer.timeout.connect(main_window.update)
+    for window in windows:
+        timer.timeout.connect(window.update)
     timer.start(UPDATE_INTERVAL)
     return timer
 
