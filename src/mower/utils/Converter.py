@@ -27,7 +27,7 @@ class Length(object):
             return
         self.unit = unit
 
-    def meter(self):
+    def meter(self) -> float:
         if self.unit == self.METER:
             return self.length
         if self.unit == self.PIXEL:
@@ -35,15 +35,15 @@ class Length(object):
         if self.unit == self.CENTIMETER:
             return self.length / 100
 
-    def pixel(self):
+    def pixel(self) -> int:
         if self.unit == self.METER:
-            return self.length * PX2M_DIVIDER
+            return int(self.length * PX2M_DIVIDER)
         if self.unit == self.PIXEL:
-            return self.length
+            return int(self.length)
         if self.unit == self.CENTIMETER:
-            return (self.length * PX2M_DIVIDER) / 100
+            return int((self.length * PX2M_DIVIDER) / 100)
 
-    def centimeter(self):
+    def centimeter(self) -> float:
         if self.unit == self.METER:
             return self.length * 100
         if self.unit == self.PIXEL:
@@ -51,7 +51,7 @@ class Length(object):
         if self.unit == self.CENTIMETER:
             return self.length
 
-    def get_distance(self, unit):
+    def get_distance(self, unit) -> float:
         if unit == self.METER:
             return self.meter()
         if unit == self.PIXEL:

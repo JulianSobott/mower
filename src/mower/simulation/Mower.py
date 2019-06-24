@@ -3,6 +3,8 @@
 @brief:
 @description:
 """
+from typing import Tuple
+
 import math
 
 from PyQt5 import QtGui
@@ -60,13 +62,12 @@ class Mower(core.Mower, Renderable):
         pass
 
     def get_sensor_data(self):
-        val = self.global_map[int(self.x.pixel())][int(self.y.pixel())]
-        logger.debug(val)
-        pass
+        underground = self.global_map[self.y.pixel()][self.x.pixel()]
+
+        return core.SensorData(underground)
 
     def update_rendering(self, passed_time):
         super().update()
-        self.get_sensor_data()
         self.x += 0.001
         #self.rotate_wheel(self.RIGHT_WHEEL, 1)
 
@@ -95,6 +96,9 @@ class Mower(core.Mower, Renderable):
         painter.drawImage(rect, self.img_mower)
 
         painter.resetTransform()
+
+    def pos2index(self) -> Tuple[int, int]:
+        return self.y.pixel(), self.x.pixel()
 
     def _load_map(self) -> 'simulation.Map':
         return simulation.Map()

@@ -9,6 +9,7 @@
    |     |
     -----
 """
+from typing import Tuple
 
 from mower.core.Logging import logger
 from mower.utils import Length
@@ -33,6 +34,7 @@ class Mower:
     def __init__(self):
         #: Map that contains all data that the mower is aware of
         self.local_map: core.Map = self._load_map()
+        self.local_pos = 0, 0
 
     def drive(self):
         distance_to_drive = 0
@@ -61,16 +63,23 @@ class Mower:
         logger.error("implement this function in child class")
         pass
 
-    def get_sensor_data(self):
+    def get_sensor_data(self) -> 'SensorData':
         """Implement this function in child class"""
-        logger.error("implement this function in child class: rotate_wheel")
-        pass
+        raise NotImplementedError
 
     def update(self):
         """Takes all data calculates next actions and execute them
         Way algorithm could go here?"""
-        # TODO: implement
-        pass
+        data = self.get_sensor_data()
+        self.update_map(data)
+
+    def update_map(self, data: 'SensorData'):
+        row, col = self.pos2index()
+        self.local_map[row][col] = data.cell_type
+
+    def pos2index(self) -> Tuple[int, int]:
+        """TODO"""
+        raise NotImplementedError
 
     def drive_forward(self, distance):
         pass
@@ -90,3 +99,12 @@ class Mower:
     def _load_map(self) -> 'core.Map':
         """If a map is saved load it else create a new one."""
         return core.Map()
+
+
+class SensorData:
+
+    def __init__(self, underground: 'core.CellType'):
+        self.cell_type = underground
+
+    def __repr__(self):
+        return f"SensorData(underground = {self.cell_type},)"
