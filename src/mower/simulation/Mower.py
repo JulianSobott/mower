@@ -27,6 +27,7 @@ class Mower(core.Mower, Renderable):
         self.y = Length(3, Length.METER)
         self.rotation = 90   # like compass (0 - 360)
         self.local_map: simulation.Map
+        self.global_map: simulation.Map = None
 
         self.img_mower = QtGui.QImage(paths.get_asset_path("mower.png"))
 
@@ -59,12 +60,14 @@ class Mower(core.Mower, Renderable):
         pass
 
     def get_sensor_data(self):
-        # TODO: implement
+        val = self.global_map[int(self.x.pixel())][int(self.y.pixel())]
+        logger.debug(val)
         pass
 
     def update_rendering(self, passed_time):
         super().update()
-        # TODO:
+        self.get_sensor_data()
+        self.x += 0.001
         #self.rotate_wheel(self.RIGHT_WHEEL, 1)
 
     def draw(self, painter):

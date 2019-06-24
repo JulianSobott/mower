@@ -45,3 +45,6 @@ class Map:
 
         #: The cell type for every cell
         self.cells = np.zeros(self.shape)
+
+    def __getitem__(self, index):
+        return self.cells[index]

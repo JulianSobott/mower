@@ -10,6 +10,10 @@ sphinx = "*"
 pyqt5 = "*"
 sphinx-rtd-theme = "*"
 pyqt5-stubs = "*"
+numpy = "*"
+skimage = "*"
+scikit-image = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.7"

@@ -43,9 +43,19 @@ class GlobalWindow(simulation.BaseWindow):
 
         self.show()
 
+    @property
+    def map(self):
+        return self.global_map
+
 
 class GlobalWindowInterface(simulation.BaseWindowInterface):
 
     def __init__(self, mower: simulation.Mower):
         super().__init__(GlobalWindow(mower))
         self._control_window = None
+
+    @property
+    def map(self):
+        self._window: GlobalWindow
+        return self._window.map
+

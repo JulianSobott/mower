@@ -37,13 +37,13 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         """
         super().__init__()
         super(core.Map, self).__init__()
-        self.size = (800, 1000)
-        self.pix_map = QtGui.QPixmap(self.size[0], self.size[1])
+
+        self.pix_map = QtGui.QPixmap(self.size[0].pixel(), self.size[1].pixel())
         self.items = items
 
-        self.data = np.zeros((self.size[1], self.size[0]))
-        self.data = np.reshape(self.data, (self.size[1], self.size[0]))
-        self.data = np.require(self.data, np.uint8, 'C')
+        self.cells = np.zeros((self.shape[1], self.shape[0]))
+        self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
+        self.cells = np.require(self.cells, np.uint8, 'C')
 
         self.allow_draw_map = True
 
@@ -61,7 +61,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             item.update_rendering(passed_time)
 
     def draw(self, painter):
-        qi = QtGui.QImage(self.data.data, self.size[0], self.size[1], QtGui.QImage.Format_Indexed8)
+        qi = QtGui.QImage(self.cells.data, self.shape[0], self.shape[1], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)
         # painter.drawImage(0, 0, qi)
         self.pix_map = QtGui.QPixmap.fromImage(qi)
@@ -92,7 +92,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         if self.mouse_move_mode == "DRAW":
             stroke_width = 20   # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
             try:
-                self.draw_thick_line(last_global_pos, global_pos, stroke_width, self.data, self.OBSTACLE_COLOR)
+                self.draw_thick_line(last_global_pos, global_pos, stroke_width, self.cells, self.OBSTACLE_COLOR)
             except IndexError:
                 pass    # Drawing outside the window
         else:
