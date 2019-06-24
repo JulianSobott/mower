@@ -62,7 +62,7 @@ class Mower(core.Mower, Renderable):
         pass
 
     def get_sensor_data(self):
-        underground = self.global_map[self.y.pixel()][self.x.pixel()]
+        underground = core.CellType.by_value(self.global_map[self.y.pixel()][self.x.pixel()])
 
         return core.SensorData(underground)
 
@@ -97,8 +97,9 @@ class Mower(core.Mower, Renderable):
 
         painter.resetTransform()
 
-    def pos2index(self) -> Tuple[int, int]:
-        return self.y.pixel(), self.x.pixel()
+    def pos2index(self, x: int, y: int) -> Tuple[int, int]:
+        # TODO
+        return x, y
 
     def _load_map(self) -> 'simulation.Map':
         return simulation.Map()

@@ -34,7 +34,8 @@ class Mower:
     def __init__(self):
         #: Map that contains all data that the mower is aware of
         self.local_map: core.Map = self._load_map()
-        self.local_pos = 0, 0
+        self.local_pos = [self.local_map.shape[0] // 2, self.local_map.shape[1]//2]
+        self.last_local_pos = self.local_pos
 
     def drive(self):
         distance_to_drive = 0
@@ -60,8 +61,7 @@ class Mower:
     def rotate_wheels(self, time_left, time_right):
         """Implement this function in child class
         WHEEL can be self.LEFT_WHEEL or self.RIGHT_WHEEL"""
-        logger.error("implement this function in child class")
-        pass
+        raise NotImplementedError
 
     def get_sensor_data(self) -> 'SensorData':
         """Implement this function in child class"""
@@ -70,14 +70,22 @@ class Mower:
     def update(self):
         """Takes all data calculates next actions and execute them
         Way algorithm could go here?"""
+        if self.local_pos[0] < self.local_map.shape[0]:
+            self.local_pos[0] += 1
+        else:
+            self.local_pos[0] -= 1
         data = self.get_sensor_data()
         self.update_map(data)
 
-    def update_map(self, data: 'SensorData'):
-        row, col = self.pos2index()
-        self.local_map[row][col] = data.cell_type
+        self.last_local_pos = self.local_pos
 
-    def pos2index(self) -> Tuple[int, int]:
+    def update_map(self, data: 'SensorData'):
+        row_start, col_start = self.pos2index(*self.last_local_pos)
+        row_end, col_end = self.pos2index(*self.local_pos)
+        self.local_map.add_line_data((col_start, row_start), (col_end, row_end), self.WIDTH.pixel(),
+                                     self.local_map.cells, data.cell_type.value)
+
+    def pos2index(self, x: int, y: int) -> Tuple[int, int]:
         """TODO"""
         raise NotImplementedError
 

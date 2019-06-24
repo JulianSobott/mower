@@ -84,33 +84,26 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.last_local_pos = mouse_event.localPos()
 
     def mouseMoveEvent(self, mouse_event):
-        local_pos = mouse_event.localPos()
+        local_pos: QtCore.QPoint = mouse_event.localPos().toPoint()
 
-        global_pos = self.transformation.inverted()[0].map(local_pos)
-        last_global_pos = self.transformation.inverted()[0].map(self.last_local_pos)
+        global_pos: QtCore.QPoint = self.transformation.inverted()[0].map(local_pos)
+        last_global_pos: QtCore.QPoint = self.transformation.inverted()[0].map(self.last_local_pos)
 
         if self.mouse_move_mode == "DRAW":
             stroke_width = 20   # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
             try:
-                self.draw_thick_line(last_global_pos, global_pos, stroke_width, self.cells, self.OBSTACLE_COLOR)
+
+                self.add_line_data((last_global_pos.x(), last_global_pos.y()),
+                                   (global_pos.x(), global_pos.y()),
+                                   stroke_width,
+                                   self.cells,
+                                   self.OBSTACLE_COLOR)
             except IndexError:
                 pass    # Drawing outside the window
         else:
             delta = global_pos - last_global_pos
             self.transformation.translate(delta.x(), delta.y())
         self.last_local_pos = local_pos
-
-    @staticmethod
-    def draw_thick_line(pos1: QtCore.QPoint, pos2: QtCore.QPoint, thickness: int, data: np.array, color_idx=0):
-        # TODO: find way that ensures, that line is always thick enough (take angular in account)
-        poly = np.array((
-            (int(pos1.y() + thickness//2), int(pos1.x() + thickness//2)),
-            (int(pos2.y() + thickness//2), int(pos2.x() + thickness//2)),
-            (int(pos2.y() - thickness // 2), int(pos2.x() - thickness // 2)),
-            (int(pos1.y() - thickness // 2), int(pos1.x() - thickness // 2)),
-        ))
-        rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
-        data[rr, cc] = color_idx
 
     def mouseReleaseEvent(self, mouse_event):
         self.last_local_pos = None
