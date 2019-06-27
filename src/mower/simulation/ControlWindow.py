@@ -5,7 +5,7 @@
 """
 import time
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 
 from mower.simulation import BaseWindow
 from mower.simulation.Logging import logger
@@ -47,6 +47,13 @@ class ControlWindow(BaseWindow):
         btn_draw_map.move(20, 70)
         btn_draw_map.clicked.connect(self._click_draw_map)
 
+        self.lbl_simulation_speed = QtWidgets.QLabel("Simulation speed: 1.0", self)
+        self.lbl_simulation_speed.setGeometry(20, 110, 230, 10)
+        slider_simulation_speed = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
+        slider_simulation_speed.setSliderPosition(50)
+        slider_simulation_speed.sliderMoved.connect(self._slider_simulation_speed_update)
+        slider_simulation_speed.move(300, 110)
+
     def update(self):
         self.update_fps()
 
@@ -63,4 +70,17 @@ class ControlWindow(BaseWindow):
         self.cb_run.setChecked(False)
         # self.global_window.set_draw_map(True)
 
+    def _slider_simulation_speed_update(self, value: int):
+        """
+        0: speed = 0
+        50: speed = 1
+        100 speed = 2
+        :param value: [0 - 100] 0: slowest (stop), 100: fastest
+        :return:
+        """
+        self._set_simulation_speed(value/50)
 
+    def _set_simulation_speed(self, time_scale: float):
+        self.local_window.set_time_scale(time_scale)
+        self.global_window.set_time_scale(time_scale)
+        self.lbl_simulation_speed.setText(f"Simulation speed: {time_scale}")

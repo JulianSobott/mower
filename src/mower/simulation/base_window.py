@@ -78,6 +78,8 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
         self._draw_items()
 
     def update_items(self):
+        """Update all items. The time_passed is may be affected by a scale factor to slow down or fasten the
+        simulation"""
         time_passed = (time.time() - self.last_update) * self.time_scale
         for item in self.items:
             item.update_rendering(time_passed)
@@ -130,3 +132,6 @@ class BaseWindowInterface(metaclass=Singleton):
 
     def set_control_window(self, control_window):
         self._control_window = control_window
+
+    def set_time_scale(self, time_scale: float):
+        self._window.time_scale = time_scale
