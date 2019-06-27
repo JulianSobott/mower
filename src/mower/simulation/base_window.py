@@ -66,6 +66,7 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
         self.last_update = time.time()
         self.setWindowTitle(self.TITLE)
         self.setGeometry(QtCore.QRect(*self.SIZE))
+        self.is_paused = False
 
         #: Makes it possible to slow down or speed up the game without affecting the FPS.
         #: = 1: No effect
@@ -80,7 +81,10 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
     def update_items(self):
         """Update all items. The time_passed is may be affected by a scale factor to slow down or fasten the
         simulation"""
-        time_passed = (time.time() - self.last_update) * self.time_scale
+        if self.is_paused:
+            time_passed = 0
+        else:
+            time_passed = (time.time() - self.last_update) * self.time_scale
         for item in self.items:
             item.update_rendering(time_passed)
         self.repaint()
@@ -111,24 +115,22 @@ class BaseWindowInterface(metaclass=Singleton):
     """Class that communicates with MainWindow. contains all public functions"""
 
     def __init__(self, window: BaseWindow):
-        self._is_paused = False
         self._window: BaseWindow = window
         self._control_window = None
 
     def update(self):
         """Update all items and repaints the window"""
         self._control_window.update()
-        if not self._is_paused:
-            self._window.update_items()
+        self._window.update_items()
 
     def pause(self):
-        self._is_paused = True
+        self._window.is_paused = True
 
     def resume(self):
-        self._is_paused = False
+        self._window.is_paused = False
 
     def toggle_pause(self):
-        self._is_paused = not self._is_paused
+        self._window.is_paused = not self._window.is_paused
 
     def set_control_window(self, control_window):
         self._control_window = control_window

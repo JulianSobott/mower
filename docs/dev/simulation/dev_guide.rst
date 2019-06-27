@@ -1,8 +1,11 @@
 TODO next
 ===========
 
+
+- Add layout to control window
 - Add parameters for drawing on map to control window
-- Add option for more windows (Especially multiple maps)
+- Change units to fit real values. sizes, velocity, ...
+- Constant fps
 
 
 Relations

@@ -25,7 +25,7 @@ class Mower:
     LEFT_WHEEL = 0
     RIGHT_WHEEL = 1
 
-    VELOCITY_MS = 0.0001  # m/s
+    VELOCITY_MS = 0.001  # m/s
 
     WIDTH = Length(0.3, Length.METER)
     LENGTH = Length(0.5, Length.METER)
