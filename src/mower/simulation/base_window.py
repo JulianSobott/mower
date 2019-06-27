@@ -67,12 +67,18 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
         self.setWindowTitle(self.TITLE)
         self.setGeometry(QtCore.QRect(*self.SIZE))
 
+        #: Makes it possible to slow down or speed up the game without affecting the FPS.
+        #: = 1: No effect
+        #: < 1: slow down
+        #: > 1: fasten
+        self.time_scale = 1.
+
     def paintEvent(self, e):
         """Overridden from super()"""
         self._draw_items()
 
     def update_items(self):
-        time_passed = time.time() - self.last_update
+        time_passed = (time.time() - self.last_update) * self.time_scale
         for item in self.items:
             item.update_rendering(time_passed)
         self.repaint()

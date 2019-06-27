@@ -34,9 +34,9 @@ class Mower(core.Mower, Renderable):
 
         self.img_mower = QtGui.QImage(paths.get_asset_path("mower.png"))
 
-    def update_rendering(self, passed_time):
+    def update_rendering(self, passed_time: float):
         """Periodically updating the state of the mower."""
-        super().update()
+        super().update(passed_time)
 
     def draw(self, painter):
         """

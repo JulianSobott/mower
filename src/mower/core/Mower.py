@@ -82,10 +82,11 @@ class Mower:
         """Implement this function in child class"""
         raise NotImplementedError
 
-    def update(self):
+    def update(self, delta_time: float):
         """Takes all data calculates next actions and execute them
         Way algorithm could go here?"""
-        self.drive_forward(Length(1, Length.PIXEL))
+        distance = Length(self.VELOCITY_MS * delta_time, Length.METER)
+        self.drive_forward(distance)
         data = self.get_sensor_data()
         self.update_map(data)
 
