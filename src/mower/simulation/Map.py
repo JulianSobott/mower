@@ -15,6 +15,7 @@ from mower import core
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
 from mower import simulation
+from mower.utils import types
 
 
 class Map(core.Map, Renderable, QtWidgets.QWidget):
@@ -117,3 +118,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             scale_delta = -self.zoom_factor
             self.zoom -= self.zoom_factor
         self.transformation.scale(1 + scale_delta, 1 + scale_delta)
+
+    def cell_type_at(self, x: types.Length, y : types.Length):
+        row, col = self.pos2index(x, y)
+        return core.CellType.by_value(self.cells[row][col])

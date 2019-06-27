@@ -69,3 +69,8 @@ class Map:
         ))
         rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
         data[rr, cc] = data_val
+
+    def pos2index(self, x: Length, y: Length) -> Tuple[int, int]:
+        """Transfer the position of the mower on the map to [row, col] indices of the map array."""
+        return (y / self.CELL_SIZE).pixel(), (x / self.CELL_SIZE).pixel()
+

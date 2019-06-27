@@ -11,9 +11,12 @@
 """
 from typing import Tuple
 
+import math
+
 from mower.core.Logging import logger
 from mower.utils import Length
 from mower import core
+from mower.utils import types
 
 
 class Mower:
@@ -34,8 +37,20 @@ class Mower:
     def __init__(self):
         #: Map that contains all data that the mower is aware of
         self.local_map: core.Map = self._load_map()
-        self.local_pos = [self.local_map.shape[0] // 2, self.local_map.shape[1]//2]
-        self.last_local_pos = self.local_pos
+
+        #: Position of the mower on the local map
+        #: Mower should start somewhere in the middle to have enough space to build the map around itself
+        #: Indices: 0 = X = Horizontal = Col, 1 = Y = Vertical = Row
+        self.local_pos: types.PointL = [Length(2, Length.METER), Length(2, Length.METER)]
+
+        #: Position of the last call circle
+        self.last_local_pos: types.PointL = self.local_pos
+
+        #: The direction, the front of the mower faces. The int is a compass number
+        #: E.g. North = 0, East = 90, South = 180, West = 270
+        #: Value Range inclusive: 0 - 359
+        self.look_direction_deg: int = 150
+        self.look_direction_rad: float = math.radians(self.look_direction_deg)
 
     def drive(self):
         distance_to_drive = 0
@@ -70,30 +85,29 @@ class Mower:
     def update(self):
         """Takes all data calculates next actions and execute them
         Way algorithm could go here?"""
-        if self.local_pos[0] < self.local_map.shape[0]:
-            self.local_pos[0] += 1
-        else:
-            self.local_pos[0] -= 1
+        self.drive_forward(Length(1, Length.PIXEL))
         data = self.get_sensor_data()
         self.update_map(data)
 
-        self.last_local_pos = self.local_pos
-
     def update_map(self, data: 'SensorData'):
-        row_start, col_start = self.pos2index(*self.last_local_pos)
-        row_end, col_end = self.pos2index(*self.local_pos)
+        row_start, col_start = self.local_map.pos2index(*self.last_local_pos)
+        row_end, col_end = self.local_map.pos2index(*self.local_pos)
         self.local_map.add_line_data((col_start, row_start), (col_end, row_end), self.WIDTH.pixel(),
                                      self.local_map.cells, data.cell_type.value)
 
-    def pos2index(self, x: int, y: int) -> Tuple[int, int]:
-        """TODO"""
-        raise NotImplementedError
+    def drive_forward(self, distance: Length) -> types.PointL:
+        """
 
-    def drive_forward(self, distance):
-        pass
-
-        # TODO: implement
-        # Calls rotate_wheel()
+        :param distance:
+        :return: [d_x, d_y] The distances that where driven in X and Y direction
+        """
+        # TODO self.rotate_wheels()
+        d_y = math.sin(self.look_direction_rad - math.pi/2) * distance
+        d_x = math.cos(self.look_direction_rad - math.pi/2) * distance
+        self.last_local_pos = self.local_pos
+        self.local_pos[0] += d_x
+        self.local_pos[1] += d_y
+        return [d_x, d_y]
 
     def drive_forward_till_obstacle(self):
         # Necessary?
