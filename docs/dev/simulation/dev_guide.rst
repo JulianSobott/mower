@@ -1,7 +1,8 @@
 TODO next
 ===========
 
-
+- The data of the local map is not rendered.
+- Mower local copy global map by driving
 - Add layout to control window
 - Add parameters for drawing on map to control window
 - Change units to fit real values. sizes, velocity, ...

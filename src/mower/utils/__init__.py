@@ -3,5 +3,5 @@
 @brief: Some util functionality
 @description:
 """
-from .Singletons import Singleton
-from .Converter import Length
+from mower.utils.Singletons import Singleton
+from mower.utils.Converter import Length

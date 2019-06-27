@@ -4,11 +4,12 @@
 @description:
 1px = 1cm = 0.01m
 """
+from typing import Union
 
 from mower.utils.Logging import logger
 
 
-PX2M_DIVIDER = 100
+PX2M_DIVIDER = 10
 
 
 class Length(object):
@@ -17,8 +18,8 @@ class Length(object):
     PIXEL = (1, "pixel", "px")
     CENTIMETER = (2, "centimeter", "cm")
 
-    def __init__(self, distance, unit):
-        self.length = distance
+    def __init__(self, distance: Union[int, float], unit):
+        self.length: Union[int, float] = distance
         if not(type(unit) == tuple and len(unit) == 3):
             logger.error("Enter valid length unit: (METER, PIXEL, CENTIMETER)")
             return
@@ -26,6 +27,9 @@ class Length(object):
             logger.error("Enter valid length unit: (METER, PIXEL, CENTIMETER)")
             return
         self.unit = unit
+
+    def int_val(self):
+        return int(self.length)
 
     def meter(self) -> float:
         if self.unit == self.METER:

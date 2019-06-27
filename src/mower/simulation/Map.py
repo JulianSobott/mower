@@ -39,7 +39,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         super().__init__()
         super(core.Map, self).__init__()
 
-        self.pix_map = QtGui.QPixmap(self.size[0].pixel(), self.size[1].pixel())
+        self.pix_map = None
         self.items = items
 
         self.cells = np.zeros((self.shape[1], self.shape[0]))
@@ -91,7 +91,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         last_global_pos: QtCore.QPoint = self.transformation.inverted()[0].map(self.last_local_pos)
 
         if self.mouse_move_mode == "DRAW":
-            stroke_width = 20   # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
+            stroke_width = 10   # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
             try:
 
                 self.add_line_data((last_global_pos.x(), last_global_pos.y()),
@@ -99,6 +99,9 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
                                    stroke_width,
                                    self.cells,
                                    self.OBSTACLE_COLOR)
+                logger.debug(f"{global_pos}")
+                logger.debug(f"{self.index2pos(global_pos.x(), global_pos.y())}")
+                logger.debug(f"{self.pos2index(*self.index2pos(global_pos.x(), global_pos.y()))}")
             except IndexError:
                 pass    # Drawing outside the window
         else:
@@ -119,6 +122,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             self.zoom -= self.zoom_factor
         self.transformation.scale(1 + scale_delta, 1 + scale_delta)
 
-    def cell_type_at(self, x: types.Length, y : types.Length):
+    def cell_type_at(self, x: types.Length, y: types.Length):
         row, col = self.pos2index(x, y)
         return core.CellType.by_value(self.cells[row][col])

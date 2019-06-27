@@ -25,6 +25,7 @@ import skimage.draw
 from mower.core.Logging import logger
 from mower.utils import Length
 from mower.utils.types import Point
+from mower.utils import Converter
 
 
 class CellType(enum.Enum):
@@ -42,7 +43,8 @@ class Map:
 
     #: How big is a cell in the real world. The smaller the value the more precise is the map, but also the bigger it
     #: gets (memory).
-    CELL_SIZE = Length(1000, Length.CENTIMETER)
+    #: Use the converter unit to fit pixel conversion properly
+    CELL_SIZE = Length(1/Converter.PX2M_DIVIDER, Length.METER)
 
     def __init__(self, size: Tuple[Length, Length] = (Length(50, Length.METER), Length(50, Length.METER))):
 
@@ -50,7 +52,7 @@ class Map:
         self.size = size
 
         #: The array shape, based on CELL_SIZE
-        self.shape = (self.size[0] / self.CELL_SIZE).pixel(), (self.size[1] / self.CELL_SIZE).pixel()
+        self.shape = int((self.size[0] / self.CELL_SIZE).length), int((self.size[1] / self.CELL_SIZE).length)
 
         #: The cell type for every cell
         self.cells = np.zeros(self.shape)
@@ -72,5 +74,7 @@ class Map:
 
     def pos2index(self, x: Length, y: Length) -> Tuple[int, int]:
         """Transfer the position of the mower on the map to [row, col] indices of the map array."""
-        return (y / self.CELL_SIZE).pixel(), (x / self.CELL_SIZE).pixel()
+        return (y / self.CELL_SIZE).int_val(), (x / self.CELL_SIZE).int_val()
 
+    def index2pos(self, row: int, col: int):
+        return col * self.CELL_SIZE, row * self.CELL_SIZE
