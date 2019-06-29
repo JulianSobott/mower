@@ -8,8 +8,10 @@ from typing import Union
 
 from mower.utils.Logging import logger
 
-
-PX2M_DIVIDER = 10
+#: 1 pixel = 1/PX2M_DIVIDER meter
+#: X pixel = X/PX2M_DIVIDER meter
+#: The bigger the value the less area is rendered on one pixel
+PX2M_DIVIDER = 50
 
 
 class Length(object):
@@ -71,8 +73,7 @@ class Length(object):
         return Length(other_dis + self.length, self.unit)
 
     def __iadd__(self, other):
-        self.length += Length.get_other_distance(other, self.unit)
-        return self
+        return Length(self.length + Length.get_other_distance(other, self.unit), self.unit)
 
     def __radd__(self, other):
         return Length.__add__(self, other)
@@ -82,8 +83,7 @@ class Length(object):
         return Length(self.length - other_dis, self.unit)
 
     def __isub__(self, other):
-        self.length -= Length.get_other_distance(other, self.unit)
-        return self
+        return Length(self.length - Length.get_other_distance(other, self.unit), self.unit)
 
     def __rsub__(self, other):
         return Length.__sub__(self, other)
@@ -93,8 +93,7 @@ class Length(object):
         return Length(other_dis * self.length, self.unit)
 
     def __imul__(self, other):
-        self.length *= Length.get_other_distance(other, self.unit)
-        return self
+        return Length(self.length * Length.get_other_distance(other, self.unit), self.unit)
 
     def __rmul__(self, other):
         return Length.__mul__(self, other)
@@ -104,8 +103,7 @@ class Length(object):
         return Length(self.length / other_dis, self.unit)
 
     def __itruediv__(self, other):
-        self.length /= Length.get_other_distance(other, self.unit)
-        return self
+        return Length(self.length / Length.get_other_distance(other, self.unit), self.unit)
 
     def __rtruediv__(self, other):
         return Length.__truediv__(self, other)
@@ -115,8 +113,7 @@ class Length(object):
         return Length(self.length % other_dis, self.unit)
 
     def __imod__(self, other):
-        self.length %= Length.get_other_distance(other, self.unit)
-        return self
+        return Length(self.length % Length.get_other_distance(other, self.unit), self.unit)
 
     def __rmod__(self, other):
         return Length.__mod__(self, other)
