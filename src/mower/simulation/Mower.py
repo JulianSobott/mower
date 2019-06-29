@@ -20,7 +20,6 @@ from mower.simulation import paths
 
 
 class Mower(core.Mower, Renderable):
-
     MOWER_COLOR = QtGui.QColor(150, 120, 150)
 
     def __init__(self):
@@ -50,7 +49,7 @@ class Mower(core.Mower, Renderable):
         center_point = rect.center()
 
         # Sets the center as 0;0 coordinate
-        transform.translate((-self.WIDTH/2).pixel(), (-self.LENGTH/2).pixel())
+        transform.translate((-self.WIDTH / 2).pixel(), (-self.LENGTH / 2).pixel())
 
         # Rotate around the center
         transform.translate(center_point.x(), center_point.y())
@@ -82,3 +81,11 @@ class Mower(core.Mower, Renderable):
 
     def _load_map(self) -> 'simulation.Map':
         return simulation.Map()
+
+    def update_map(self, data):
+        super().update_map(data)
+
+        # row_start, col_start = self.local_map.pos2index(*self.last_local_pos)
+        # row_end, col_end = self.local_map.pos2index(*self.local_pos)
+        # self.local_map.add_line_data((col_start, row_start), (col_end, row_end), self.WIDTH.pixel(),
+        #                              self.global_map.cells, 1)

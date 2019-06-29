@@ -41,10 +41,11 @@ class Mower:
         #: Position of the mower on the local map
         #: Mower should start somewhere in the middle to have enough space to build the map around itself
         #: Indices: 0 = X = Horizontal = Col, 1 = Y = Vertical = Row
-        self.local_pos: types.PointL = [Length(2, Length.METER), Length(2, Length.METER)]
+        self.local_pos: types.PointL = [Length(1, Length.METER), Length(1, Length.METER)]
 
         #: Position of the last call circle
-        self.last_local_pos: types.PointL = self.local_pos
+        self.last_local_pos: types.PointL = self.local_pos.copy()
+        logger.debug(f"{id(self.local_pos)}, {id(self.last_local_pos)}")
 
         #: The direction, the front of the mower faces. The int is a compass number
         #: E.g. North = 0, East = 90, South = 180, West = 270
@@ -85,12 +86,17 @@ class Mower:
     def update(self, delta_time: float):
         """Takes all data calculates next actions and execute them
         Way algorithm could go here?"""
-        distance = Length(self.VELOCITY_MS * delta_time, Length.METER)
-        self.drive_forward(distance)
         data = self.get_sensor_data()
         self.update_map(data)
+        distance = Length(self.VELOCITY_MS * delta_time, Length.METER)
+        self.last_local_pos = self.local_pos.copy()
+        self.drive_forward(distance)
 
     def update_map(self, data: 'SensorData'):
+        #self.local_map.add_line_data((10, 10), (200, 200), 10, self.local_map.cells, 2)
+        # self.local_map.add_line_data((200, 0), (0, 200), 4, self.local_map.cells, 2)
+        # logger.debug(id(self.local_map.cells))
+        # logger.debug(f"{self.last_local_pos}, {self.local_pos}")
         row_start, col_start = self.local_map.pos2index(*self.last_local_pos)
         row_end, col_end = self.local_map.pos2index(*self.local_pos)
         self.local_map.add_line_data((col_start, row_start), (col_end, row_end), self.WIDTH.pixel(),
@@ -105,7 +111,6 @@ class Mower:
         # TODO self.rotate_wheels()
         d_y = math.sin(self.look_direction_rad - math.pi/2) * distance
         d_x = math.cos(self.look_direction_rad - math.pi/2) * distance
-        self.last_local_pos = self.local_pos
         self.local_pos[0] += d_x
         self.local_pos[1] += d_y
         return [d_x, d_y]

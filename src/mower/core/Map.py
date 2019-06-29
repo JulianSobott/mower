@@ -46,7 +46,7 @@ class Map:
     #: Use the converter unit to fit pixel conversion properly
     CELL_SIZE = Length(1/Converter.PX2M_DIVIDER, Length.METER)
 
-    def __init__(self, size: Tuple[Length, Length] = (Length(50, Length.METER), Length(50, Length.METER))):
+    def __init__(self, size: Tuple[Length, Length] = (Length(10, Length.METER), Length(10, Length.METER))):
 
         #: The actual size in the real world
         self.size = size
@@ -56,6 +56,7 @@ class Map:
 
         #: The cell type for every cell
         self.cells = np.zeros(self.shape)
+        logger.debug(id(self))
 
     def __getitem__(self, index):
         return self.cells[index]
@@ -64,11 +65,17 @@ class Map:
     def add_line_data(pos1: Point, pos2: Point, thickness: int, data: np.array, data_val: int):
         # TODO: find way that ensures, that line is always thick enough (take angular in account)
         poly = np.array((
-            (pos1[1] + thickness // 2, pos1[0] + thickness // 2),
-            (pos2[1] + thickness // 2, pos2[0] + thickness // 2),
-            (pos2[1] - thickness // 2, pos2[0] - thickness // 2),
-            (pos1[1] - thickness // 2, pos1[0] - thickness // 2),
+            (pos1[1] + thickness // 2, pos1[0] + thickness // 2),   # top left
+            (pos1[1] - thickness // 2, pos1[0] - thickness // 2),   # bottom left
+            (pos2[1] - thickness // 2, pos2[0] - thickness // 2),   # bottom right
+            (pos2[1] + thickness // 2, pos2[0] + thickness // 2),   # top right
         ))
+        # poly = np.array((
+        #     (0, 0),  # top left
+        #     (pos2[1] + thickness // 2, pos1[0] + thickness // 2),  # bottom left
+        #     (pos2[1] - thickness // 2, pos2[0] - thickness // 2),  # bottom right
+        #     (pos1[1] - thickness // 2, pos2[0] - thickness // 2),  # top right
+        # ))
         rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
         data[rr, cc] = data_val
 

@@ -82,7 +82,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             # right
             self.mouse_move_mode = "TRANSLATE"
 
-        self.last_local_pos = mouse_event.localPos()
+        self.last_local_pos = mouse_event.localPos().toPoint()
 
     def mouseMoveEvent(self, mouse_event):
         local_pos: QtCore.QPoint = mouse_event.localPos().toPoint()
@@ -99,8 +99,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
                                    stroke_width,
                                    self.cells,
                                    self.OBSTACLE_COLOR)
-                logger.debug(f"{global_pos}")
-                logger.debug(f"{self.index2pos(global_pos.x(), global_pos.y())}")
+                # logger.debug(f"{global_pos}")
+                # logger.debug(f"{self.index2pos(global_pos.x(), global_pos.y())}")
                 logger.debug(f"{self.pos2index(*self.index2pos(global_pos.x(), global_pos.y()))}")
             except IndexError:
                 pass    # Drawing outside the window
