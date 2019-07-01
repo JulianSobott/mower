@@ -16,7 +16,7 @@ from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
 from mower.utils import types, Length
 from mower import core, simulation
-from mower.simulation import paths
+from mower.simulation import paths, Painting
 
 
 class Mower(core.Mower, Renderable):
@@ -24,9 +24,10 @@ class Mower(core.Mower, Renderable):
 
     def __init__(self):
         super().__init__()
+
         #: The position on the global map
         #: The global map must always be updated synchronously to the local position
-        self.global_pos: types.PointL = [Length(1, Length.METER), Length(1, Length.METER)]
+        self.global_pos: types.PointL = [Length(3, Length.METER), Length(3, Length.METER)]
 
         #: Map where all the sensor data is taken from
         self.global_map: simulation.Map = None
@@ -37,13 +38,18 @@ class Mower(core.Mower, Renderable):
         """Periodically updating the state of the mower."""
         super().update(passed_time)
 
-    def draw(self, painter):
+    def draw(self, painter: Painting.Painter, is_global: bool = False) -> None:
         """
         The center of the mower is the x and y coordinates
         The mower is rotated around the center
-        """
 
-        rect = QRect(self.global_pos[0].pixel(), self.global_pos[1].pixel(), self.WIDTH.pixel(), self.LENGTH.pixel())
+        :param painter:
+        :param is_global: Defines if the global or the local position is taken for rendering
+        """
+        if is_global:
+            rect = QRect(self.global_pos[0].pixel(), self.global_pos[1].pixel(), self.WIDTH.pixel(), self.LENGTH.pixel())
+        else:
+            rect = QRect(self.local_pos[0].pixel(), self.local_pos[1].pixel(), self.WIDTH.pixel(), self.LENGTH.pixel())
 
         transform = QtGui.QTransform()
         center_point = rect.center()

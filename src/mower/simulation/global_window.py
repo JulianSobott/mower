@@ -37,7 +37,7 @@ class GlobalWindow(simulation.BaseWindow):
     def __init__(self, mower: simulation.Mower):
         super().__init__()
         self.mower = mower
-        self.global_map = simulation.Map([self.mower])
+        self.global_map = simulation.Map([self.mower], is_global=True)
         self.items.append(self.global_map)
         self.event_receivers.append(self.global_map)
 

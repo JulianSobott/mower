@@ -36,7 +36,7 @@ class Renderable:
         logger.error("implement this function in child class: update_rendering")
         pass
 
-    def draw(self, painter):
+    def draw(self, painter: Painter, *args):
         logger.error("implement this function in child class: draw")
         pass
 

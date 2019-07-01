@@ -31,16 +31,24 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         QtGui.qRgb(0, 0, 0)
     ]
 
-    def __init__(self, items: List[Renderable] = []):
+    def __init__(self, items: List[Renderable] = None, is_global: bool = False):
         """
 
         :param items: A list of all items that are rendered with transformations on the map.
+        :param is_global: Defines if the map represents the global view of the scene or the local.
         """
         super().__init__()
         super(core.Map, self).__init__()
 
         self.pix_map = None
-        self.items = items
+        if items is None:
+            self.items = []
+        else:
+            self.items = items
+
+        #: True: The global positions will be taken for rendering
+        #: False: The local positions (core.mower) will be taken for rendering
+        self.is_global = is_global
 
         self.cells = np.zeros((self.shape[1], self.shape[0]))
         self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
@@ -61,7 +69,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         for item in self.items:
             item.update_rendering(passed_time)
 
-    def draw(self, painter):
+    def draw(self, painter, *args):
         qi = QtGui.QImage(self.cells.data, self.shape[0], self.shape[1], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)
         # painter.drawImage(0, 0, qi)
@@ -69,7 +77,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         painter.setTransform(self.transformation, combine=True)
         painter.drawPixmap(0, 0, self.pix_map)
         for item in self.items:
-            item.draw(painter)
+            item.draw(painter, self.is_global)
 
     def set_draw_map(self, allow):
         self.allow_draw_map = allow
