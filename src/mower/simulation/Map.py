@@ -15,6 +15,7 @@ from mower import core
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
 from mower import simulation
+from mower.simulation.world_quad_tree import WorldQuadTree
 from mower.utils import types
 
 
@@ -50,9 +51,11 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         #: False: The local positions (core.mower) will be taken for rendering
         self.is_global = is_global
 
-        self.cells = np.zeros((self.shape[1], self.shape[0]))
-        self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
-        self.cells = np.require(self.cells, np.uint8, 'C')
+        self.cells = np.zeros((self.shape[1], self.shape[0]), np.uint8, 'C')
+        #self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
+        #self.cells = np.require(self.cells, np.uint8, 'C')
+
+        self.world_quad_tree = WorldQuadTree()
 
         self.allow_draw_map = True
 
@@ -70,14 +73,16 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             item.update_rendering(passed_time)
 
     def draw(self, painter, *args):
-        qi = QtGui.QImage(self.cells.data, self.shape[0], self.shape[1], QtGui.QImage.Format_Indexed8)
-        qi.setColorTable(self.color_table)
-        # painter.drawImage(0, 0, qi)
-        self.pix_map = QtGui.QPixmap.fromImage(qi)
-        painter.setTransform(self.transformation, combine=True)
-        painter.drawPixmap(0, 0, self.pix_map)
-        for item in self.items:
-            item.draw(painter, self.is_global)
+        self.world_quad_tree.render(painter, (0, 0, self.shape[1], self.shape[0]), 4, self.color_table)
+        #self.cells = np.full((self.shape[1], self.shape[0]), 1, np.uint8, 'C')
+        # qi = QtGui.QImage(self.cells.data, self.shape[0], self.shape[1], QtGui.QImage.Format_Indexed8)
+        # qi.setColorTable(self.color_table)
+        # # painter.drawImage(0, 0, qi)
+        # self.pix_map = QtGui.QPixmap.fromImage(qi)
+        # painter.setTransform(self.transformation, combine=True)
+        # painter.drawPixmap(0, 0, self.pix_map)
+        # for item in self.items:
+        #     item.draw(painter, self.is_global)
 
     def set_draw_map(self, allow):
         self.allow_draw_map = allow
@@ -109,7 +114,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
                                    self.OBSTACLE_COLOR)
                 # logger.debug(f"{global_pos}")
                 # logger.debug(f"{self.index2pos(global_pos.x(), global_pos.y())}")
-                logger.debug(f"{self.pos2index(*self.index2pos(global_pos.x(), global_pos.y()))}")
+                # logger.debug(f"{self.pos2index(*self.index2pos(global_pos.x(), global_pos.y()))}")
             except IndexError:
                 pass    # Drawing outside the window
         else:
