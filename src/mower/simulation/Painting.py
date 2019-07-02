@@ -33,10 +33,8 @@ class Painter(QtGui.QPainter):
 class Renderable:
 
     def update_rendering(self, passed_time):
-        logger.error("implement this function in child class: update_rendering")
-        pass
+        raise NotImplementedError
 
     def draw(self, painter: Painter, *args):
-        logger.error("implement this function in child class: draw")
-        pass
+        raise NotImplementedError
 

@@ -15,7 +15,7 @@ from mower import core
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
 from mower import simulation
-from mower.simulation.world_quad_tree import WorldQuadTree
+from mower.simulation.world_quad_tree import Quad
 from mower.utils import types
 
 
@@ -55,7 +55,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         #self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
         #self.cells = np.require(self.cells, np.uint8, 'C')
 
-        self.world_quad_tree = WorldQuadTree()
+        self.center_quad = Quad(self.BACKGROUND_COLOR)
+        self.center_quad.surround_with_neighbours(self.GRASS_COLOR)
 
         self.allow_draw_map = True
 
@@ -63,6 +64,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         # Position relative to window (All transformations are ignored and must be mapped)
         self.zoom = 1
         self.zoom_factor = 0.1
+
+        self.max_bounds = [self.shape[0], self.shape[1]]
 
         self.transformation = QtGui.QTransform()
         self.mouse_move_mode = "DRAW"   # TRANSLATE
@@ -73,16 +76,17 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             item.update_rendering(passed_time)
 
     def draw(self, painter, *args):
-        self.world_quad_tree.render(painter, (0, 0, self.shape[1], self.shape[0]), 4, self.color_table)
-        #self.cells = np.full((self.shape[1], self.shape[0]), 1, np.uint8, 'C')
+        painter.setTransform(self.transformation, combine=True)
+        self.center_quad.render(painter, (100, 100), self.max_bounds, self.color_table)     # fix position
+        # self.cells = np.full((self.shape[1], self.shape[0]), 1, np.uint8, 'C')
         # qi = QtGui.QImage(self.cells.data, self.shape[0], self.shape[1], QtGui.QImage.Format_Indexed8)
         # qi.setColorTable(self.color_table)
         # # painter.drawImage(0, 0, qi)
         # self.pix_map = QtGui.QPixmap.fromImage(qi)
         # painter.setTransform(self.transformation, combine=True)
         # painter.drawPixmap(0, 0, self.pix_map)
-        # for item in self.items:
-        #     item.draw(painter, self.is_global)
+        for item in self.items:
+            item.draw(painter, self.is_global)
 
     def set_draw_map(self, allow):
         self.allow_draw_map = allow
@@ -134,6 +138,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             scale_delta = -self.zoom_factor
             self.zoom -= self.zoom_factor
         self.transformation.scale(1 + scale_delta, 1 + scale_delta)
+        self.max_bounds[0] += 100     # TODO: Fix
+        self.max_bounds[1] += 100     # TODO: Fix
 
     def cell_type_at(self, x: types.Length, y: types.Length):
         row, col = self.pos2index(x, y)
