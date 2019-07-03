@@ -49,7 +49,7 @@ class Map:
 
     def __init__(self, size: Tuple[Length, Length] = (Length(10, Length.METER), Length(10, Length.METER))):
         self.root_quad = Quad(None, (4, 4), Quad)
-        self.root_quad.fill_with_quads(1, (100, 100))
+        self.root_quad.fill_with_quads(CellType.GRASS.value, (100, 100))
 
     def __getitem__(self, index):
         return self.cells[index]

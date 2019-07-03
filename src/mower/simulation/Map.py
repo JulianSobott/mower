@@ -39,7 +39,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         super().__init__()
         super(core.Map, self).__init__()
 
-        self.pix_map = None
         if items is None:
             self.items = []
         else:
@@ -49,24 +48,18 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         #: False: The local positions (core.mower) will be taken for rendering
         self.is_global = is_global
 
-        # self.cells = np.zeros((self.shape[1], self.shape[0]), np.uint8, 'C')
-        #self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
-        #self.cells = np.require(self.cells, np.uint8, 'C')
-
         self.window_size = QtCore.QPoint(500, 600)
-        # self.center_quad = Quad(self.BACKGROUND_COLOR)
-        #self.center_quad.surround_with_neighbours(self.GRASS_COLOR)
 
         self.allow_draw_map = True
 
+        #: Position relative to window (All transformations are ignored and must be mapped)
         self.last_local_pos = None
-        # Position relative to window (All transformations are ignored and must be mapped)
+
         self.zoom = 1
         self.zoom_factor = 0.1
 
-        #:
         #: x, y, width, height
-        #self.max_bounds = [0, 0, self.shape[0], self.shape[1]]
+        self.max_bounds = [0, 0, self.window_size.x(), self.window_size.y()]
 
         self.transformation = QtGui.QTransform()
         self.mouse_move_mode = "DRAW"   # TRANSLATE
@@ -148,7 +141,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             self.zoom -= self.zoom_factor
         self.transformation.scale(1 + scale_delta, 1 + scale_delta)
         self.updated_transformation()
-        logger.debug(self.max_bounds)
 
     def cell_type_at(self, x: types.Length, y: types.Length):
         row, col = self.pos2index(x, y)
@@ -157,15 +149,15 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
     def draw_quad(self, painter, quad: Quad, x, y):
         qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)
-        self.pix_map = QtGui.QPixmap.fromImage(qi)
-        painter.drawPixmap(x, y, self.pix_map)
+        pix_map = QtGui.QPixmap.fromImage(qi)
+        painter.drawPixmap(x, y, pix_map)
 
     def updated_transformation(self):
-        minimum = self.transformation.inverted()[0].map(QtCore.QPoint(0, 0))
-        maximum = self.transformation.inverted()[0].map(self.window_size)
+        minimum: QtCore.QPoint = self.transformation.inverted()[0].map(QtCore.QPoint(0, 0))
+        maximum: QtCore.QPoint = self.transformation.inverted()[0].map(self.window_size)
         self.max_bounds[0] = minimum.x()
         self.max_bounds[1] = minimum.y()
         self.max_bounds[2] = maximum.x()
         self.max_bounds[3] = maximum.y()
         position = self.transformation.map(QtCore.QPoint(0, 0))
-        self.center_quad.add_neighbors_to_fill((position.x(), position.y()), self.max_bounds, self.OBSTACLE_COLOR)
+        #self.center_quad.add_neighbors_to_fill((position.x(), position.y()), self.max_bounds, self.OBSTACLE_COLOR)
