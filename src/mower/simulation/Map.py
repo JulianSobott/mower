@@ -9,13 +9,11 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 import numpy as np
-import skimage.draw
 
 from mower import core
+from mower.core.map_utils import Quad
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable
-from mower import simulation
-from mower.simulation.world_quad_tree import Quad
 from mower.utils import types
 
 
@@ -51,12 +49,12 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         #: False: The local positions (core.mower) will be taken for rendering
         self.is_global = is_global
 
-        self.cells = np.zeros((self.shape[1], self.shape[0]), np.uint8, 'C')
+        # self.cells = np.zeros((self.shape[1], self.shape[0]), np.uint8, 'C')
         #self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
         #self.cells = np.require(self.cells, np.uint8, 'C')
 
         self.window_size = QtCore.QPoint(500, 600)
-        self.center_quad = Quad(self.BACKGROUND_COLOR)
+        # self.center_quad = Quad(self.BACKGROUND_COLOR)
         #self.center_quad.surround_with_neighbours(self.GRASS_COLOR)
 
         self.allow_draw_map = True
@@ -68,7 +66,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
         #:
         #: x, y, width, height
-        self.max_bounds = [0, 0, self.shape[0], self.shape[1]]
+        #self.max_bounds = [0, 0, self.shape[0], self.shape[1]]
 
         self.transformation = QtGui.QTransform()
         self.mouse_move_mode = "DRAW"   # TRANSLATE
@@ -80,9 +78,16 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
     def draw(self, painter, *args):
         painter.setTransform(self.transformation, combine=True)
-        self.center_quad.render(painter, (0, 0), self.max_bounds, self.color_table)     # fix position
-        # self.cells = np.full((self.shape[1], self.shape[0]), 1, np.uint8, 'C')
-        # qi = QtGui.QImage(self.cells.data, self.shape[0], self.shape[1], QtGui.QImage.Format_Indexed8)
+        for row in range(self.root_quad.shape[0]):
+            for col in range(self.root_quad.shape[1]):
+                quad: Quad = self.root_quad[row][col]
+                if quad is not None:
+                    self.draw_quad(painter, quad, col * quad.shape[1], row * quad.shape[0])
+
+        # # self.center_quad.render(painter, (0, 0), self.max_bounds, self.color_table)     # fix position
+        # self.cells = np.full((100, 100), 1, np.uint8, 'C')
+        # render_cells = np.repeat(np.repeat(self.cells, 3, axis=0), 2, axis=1)
+        # qi = QtGui.QImage(render_cells.data, 300, 200, QtGui.QImage.Format_Indexed8)
         # qi.setColorTable(self.color_table)
         # # painter.drawImage(0, 0, qi)
         # self.pix_map = QtGui.QPixmap.fromImage(qi)
@@ -148,6 +153,12 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
     def cell_type_at(self, x: types.Length, y: types.Length):
         row, col = self.pos2index(x, y)
         return core.CellType.by_value(self.cells[row][col])
+
+    def draw_quad(self, painter, quad: Quad, x, y):
+        qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], QtGui.QImage.Format_Indexed8)
+        qi.setColorTable(self.color_table)
+        self.pix_map = QtGui.QPixmap.fromImage(qi)
+        painter.drawPixmap(x, y, self.pix_map)
 
     def updated_transformation(self):
         minimum = self.transformation.inverted()[0].map(QtCore.QPoint(0, 0))

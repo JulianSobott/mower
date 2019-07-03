@@ -23,6 +23,7 @@ import enum
 import skimage.draw
 
 from mower.core.Logging import logger
+from mower.core.map_utils import Quad
 from mower.utils import Length
 from mower.utils.types import Point
 from mower.utils import Converter
@@ -47,16 +48,8 @@ class Map:
     CELL_SIZE = Length(1/Converter.PX2M_DIVIDER, Length.METER)
 
     def __init__(self, size: Tuple[Length, Length] = (Length(10, Length.METER), Length(10, Length.METER))):
-
-        #: The actual size in the real world
-        self.size = size
-
-        #: The array shape, based on CELL_SIZE
-        self.shape = int((self.size[0] / self.CELL_SIZE).length), int((self.size[1] / self.CELL_SIZE).length)
-
-        #: The cell type for every cell
-        self.cells = np.zeros(self.shape)
-        logger.debug(id(self))
+        self.root_quad = Quad(None, (4, 4), Quad)
+        self.root_quad.fill_with_quads(1, (100, 100))
 
     def __getitem__(self, index):
         return self.cells[index]

@@ -36,7 +36,7 @@ class Mower(core.Mower, Renderable):
 
     def update_rendering(self, passed_time: float):
         """Periodically updating the state of the mower."""
-        super().update(passed_time)
+        # super().update(passed_time)
 
     def draw(self, painter: Painting.Painter, is_global: bool = False) -> None:
         """
