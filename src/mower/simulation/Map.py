@@ -55,8 +55,9 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         #self.cells = np.reshape(self.cells, (self.shape[1], self.shape[0]))
         #self.cells = np.require(self.cells, np.uint8, 'C')
 
+        self.window_size = QtCore.QPoint(500, 600)
         self.center_quad = Quad(self.BACKGROUND_COLOR)
-        self.center_quad.surround_with_neighbours(self.GRASS_COLOR)
+        #self.center_quad.surround_with_neighbours(self.GRASS_COLOR)
 
         self.allow_draw_map = True
 
@@ -65,7 +66,9 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.zoom = 1
         self.zoom_factor = 0.1
 
-        self.max_bounds = [self.shape[0], self.shape[1]]
+        #:
+        #: x, y, width, height
+        self.max_bounds = [0, 0, self.shape[0], self.shape[1]]
 
         self.transformation = QtGui.QTransform()
         self.mouse_move_mode = "DRAW"   # TRANSLATE
@@ -77,7 +80,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
     def draw(self, painter, *args):
         painter.setTransform(self.transformation, combine=True)
-        self.center_quad.render(painter, (100, 100), self.max_bounds, self.color_table)     # fix position
+        self.center_quad.render(painter, (0, 0), self.max_bounds, self.color_table)     # fix position
         # self.cells = np.full((self.shape[1], self.shape[0]), 1, np.uint8, 'C')
         # qi = QtGui.QImage(self.cells.data, self.shape[0], self.shape[1], QtGui.QImage.Format_Indexed8)
         # qi.setColorTable(self.color_table)
@@ -124,6 +127,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         else:
             delta = global_pos - last_global_pos
             self.transformation.translate(delta.x(), delta.y())
+            self.updated_transformation()
         self.last_local_pos = local_pos
 
     def mouseReleaseEvent(self, mouse_event):
@@ -138,9 +142,19 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             scale_delta = -self.zoom_factor
             self.zoom -= self.zoom_factor
         self.transformation.scale(1 + scale_delta, 1 + scale_delta)
-        self.max_bounds[0] += 100     # TODO: Fix
-        self.max_bounds[1] += 100     # TODO: Fix
+        self.updated_transformation()
+        logger.debug(self.max_bounds)
 
     def cell_type_at(self, x: types.Length, y: types.Length):
         row, col = self.pos2index(x, y)
         return core.CellType.by_value(self.cells[row][col])
+
+    def updated_transformation(self):
+        minimum = self.transformation.inverted()[0].map(QtCore.QPoint(0, 0))
+        maximum = self.transformation.inverted()[0].map(self.window_size)
+        self.max_bounds[0] = minimum.x()
+        self.max_bounds[1] = minimum.y()
+        self.max_bounds[2] = maximum.x()
+        self.max_bounds[3] = maximum.y()
+        position = self.transformation.map(QtCore.QPoint(0, 0))
+        self.center_quad.add_neighbors_to_fill((position.x(), position.y()), self.max_bounds, self.OBSTACLE_COLOR)
