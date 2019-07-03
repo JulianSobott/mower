@@ -61,6 +61,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         #: x, y, width, height
         self.max_bounds = [0, 0, self.window_size.x(), self.window_size.y()]
 
+        self.map_offset = [0, 0]
+
         self.transformation = QtGui.QTransform()
         self.mouse_move_mode = "DRAW"   # TRANSLATE
 
@@ -75,7 +77,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             for col in range(self.root_quad.shape[1]):
                 quad: Quad = self.root_quad[row][col]
                 if quad is not None:
-                    self.draw_quad(painter, quad, col * quad.shape[1], row * quad.shape[0])
+                    self.draw_quad(painter, quad, self.map_offset[0] + col * quad.shape[1],
+                                   self.map_offset[1] + row * quad.shape[0])
 
         # # self.center_quad.render(painter, (0, 0), self.max_bounds, self.color_table)     # fix position
         # self.cells = np.full((100, 100), 1, np.uint8, 'C')
@@ -160,4 +163,5 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.max_bounds[2] = maximum.x()
         self.max_bounds[3] = maximum.y()
         position = self.transformation.map(QtCore.QPoint(0, 0))
+        self.root_quad.grow_to_size(self.max_bounds, (0, 0))
         #self.center_quad.add_neighbors_to_fill((position.x(), position.y()), self.max_bounds, self.OBSTACLE_COLOR)

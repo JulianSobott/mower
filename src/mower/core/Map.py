@@ -48,7 +48,7 @@ class Map:
     CELL_SIZE = Length(1/Converter.PX2M_DIVIDER, Length.METER)
 
     def __init__(self, size: Tuple[Length, Length] = (Length(10, Length.METER), Length(10, Length.METER))):
-        self.root_quad = Quad(None, (4, 4), Quad)
+        self.root_quad = Quad(None, (2, 2), Quad)
         self.root_quad.fill_with_quads(CellType.GRASS.value, (100, 100))
 
     def __getitem__(self, index):
