@@ -1,8 +1,23 @@
 Map
 ========
 
-The map is the main part of the main_window. The map renders all information saved in an array. It is grid based but
-the cell size (render_size and real_size) can be adjusted.
+The map is the main part of the main_window. The saves the information where are and what is at a position.
+
+
+Core
+----------------------
+
+- possible to be infinity
+- not necessary a rectangle
+- The map can be very precise at some parts and very rough at others (to save memory) ? Test it
+- (cell_size can be set)
+
+- position is a quad at a location with an average value ?
+    - the quad size can be set
+
+- get underground at position
+- set underground at position
+- set underground at line
 
 Render objects
 ----------------
