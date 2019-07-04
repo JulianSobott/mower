@@ -33,6 +33,7 @@ from typing import Union, Type
 import numpy as np
 
 from mower.utils import types
+from mower.core.Logging import logger
 
 DEFAULT_DATA_SHAPE = (500, 500)
 
@@ -55,6 +56,8 @@ class Quad:
             #: can contain either an array with other quads or primitive data
             self.data = np.full(shape, init_value, dtype=data_type)
 
+        #: How many quads added to the LEFT and to the TOP
+        self.offset = [0, 0]
         #: True: data contains primitives, False: data contains Quads
         # TODO
         self.is_leaf = True
@@ -74,12 +77,19 @@ class Quad:
         :param amount: Amount of rows/columns are added
         :param direction: In which direction are the fields added
         :param init_value:
+        :param shape:
         :param create_quads:
         :return:
         """
         if amount <= 0:
             return
+        logger.debug(f"Grow: {amount} in {direction}")
         axis_direction = {types.NORTH: 0, types.EAST: 1, types.SOUTH: 0, types.WEST: 1}
+        if direction == types.NORTH:
+            self.offset[1] += amount
+        elif direction == types.WEST:
+            self.offset[0] += amount
+
         if axis_direction[direction] == 0:
             self.shape = (self.shape[0] + amount, self.shape[1])
             if create_quads:
@@ -109,37 +119,38 @@ class Quad:
                 if self.data[row][col] is None:
                     self.data[row][col] = Quad(init_value, shape, data_type, self)
 
-    def grow_to_size(self, target_geometry, position):
+    def grow_to_size(self, target_geometry):
         """
 
         :param target_geometry: x, y, width, height
-        :param position: x, y
         :return:
         """
         quad_shape = self.data[0][0].shape
+        pos_x = -(self.offset[0] * quad_shape[1])
+        pos_y = -(self.offset[1] * quad_shape[0])
         # grow to the left
-        if target_geometry[0] < position[0]:
-            left_space = abs(target_geometry[0] - position[0])
+        if target_geometry[0] < pos_x:
+            left_space = abs(target_geometry[0] - pos_x)
             if left_space > 0:
-                extra_quads = np.math.ceil(left_space // quad_shape[1])
+                extra_quads = np.math.ceil(left_space / quad_shape[1])
                 self.grow(extra_quads, types.WEST, 1, quad_shape, create_quads=True)
         # grow to the right
-        if target_geometry[0] + target_geometry[2] > position[0] + self.shape[1] * quad_shape[1]:
-            right_space = abs(target_geometry[0] + target_geometry[2] - (position[0] + self.shape[1] * quad_shape[1]))
+        if target_geometry[0] + target_geometry[2] > pos_x + self.shape[1] * quad_shape[1]:
+            right_space = abs(target_geometry[0] + target_geometry[2] - (pos_x + self.shape[1] * quad_shape[1]))
             if right_space > 0:
-                extra_quads = np.math.ceil(right_space // quad_shape[1])
+                extra_quads = np.math.ceil(right_space / quad_shape[1])
                 self.grow(extra_quads, types.EAST, 1, quad_shape, create_quads=True)
         # grow to the top
-        if target_geometry[1] < position[1]:
-            top_space = abs(target_geometry[1] - position[1])
+        if target_geometry[1] < pos_y:
+            top_space = abs(target_geometry[1] - pos_y)
             if top_space > 0:
-                extra_quads = np.math.ceil(top_space // quad_shape[0])
+                extra_quads = np.math.ceil(top_space / quad_shape[0])
                 self.grow(extra_quads, types.NORTH, 1, quad_shape, create_quads=True)
         # grow to the bottom
-        if target_geometry[1] + target_geometry[3] > position[1] + self.shape[0] * quad_shape[0]:
-            bot_space = abs(target_geometry[1] + target_geometry[3] - (position[1] + self.shape[0] * quad_shape[0]))
+        if target_geometry[1] + target_geometry[3] > pos_y + self.shape[0] * quad_shape[0]:
+            bot_space = abs(target_geometry[1] + target_geometry[3] - (pos_y + self.shape[0] * quad_shape[0]))
             if bot_space > 0:
-                extra_quads = np.math.ceil(bot_space // quad_shape[0])
+                extra_quads = np.math.ceil(bot_space / quad_shape[0])
                 self.grow(extra_quads, types.SOUTH, 1, quad_shape, create_quads=True)
 
     def __getitem__(self, item) -> np.ndarray:

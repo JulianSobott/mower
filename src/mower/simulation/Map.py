@@ -64,7 +64,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.map_offset = [0, 0]
 
         self.transformation = QtGui.QTransform()
-        self.mouse_move_mode = "DRAW"   # TRANSLATE
+        self.mouse_move_mode = "DRAW"  # TRANSLATE
 
     def update_rendering(self, passed_time):
         super().update()
@@ -73,12 +73,19 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
     def draw(self, painter, *args):
         painter.setTransform(self.transformation, combine=True)
+        drawn = 0
         for row in range(self.root_quad.shape[0]):
             for col in range(self.root_quad.shape[1]):
                 quad: Quad = self.root_quad[row][col]
-                if quad is not None:
-                    self.draw_quad(painter, quad, self.map_offset[0] + col * quad.shape[1],
-                                   self.map_offset[1] + row * quad.shape[0])
+                pos_x = (-self.root_quad.offset[0] + col) * quad.shape[1]
+                pos_y = (-self.root_quad.offset[1] + row) * quad.shape[0]
+                #if quad is not None:
+                if (quad is not None and
+                        self.max_bounds[0] <= pos_x + quad.shape[1] and pos_x <= self.max_bounds[2] and
+                        self.max_bounds[1] <= pos_y + quad.shape[0] and pos_y <= self.max_bounds[3]):
+                    self.draw_quad(painter, quad, pos_x, pos_y)
+                    drawn += 1
+        #logger.debug(f"DRAWN: {drawn} quads")
 
         # # self.center_quad.render(painter, (0, 0), self.max_bounds, self.color_table)     # fix position
         # self.cells = np.full((100, 100), 1, np.uint8, 'C')
@@ -112,7 +119,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         last_global_pos: QtCore.QPoint = self.transformation.inverted()[0].map(self.last_local_pos)
 
         if self.mouse_move_mode == "DRAW":
-            stroke_width = 10   # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
+            stroke_width = 10  # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
             try:
 
                 self.add_line_data((last_global_pos.x(), last_global_pos.y()),
@@ -124,7 +131,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
                 # logger.debug(f"{self.index2pos(global_pos.x(), global_pos.y())}")
                 # logger.debug(f"{self.pos2index(*self.index2pos(global_pos.x(), global_pos.y()))}")
             except IndexError:
-                pass    # Drawing outside the window
+                pass  # Drawing outside the window
         else:
             delta = global_pos - last_global_pos
             self.transformation.translate(delta.x(), delta.y())
@@ -162,6 +169,5 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.max_bounds[1] = minimum.y()
         self.max_bounds[2] = maximum.x()
         self.max_bounds[3] = maximum.y()
-        position = self.transformation.map(QtCore.QPoint(0, 0))
-        self.root_quad.grow_to_size(self.max_bounds, (0, 0))
-        #self.center_quad.add_neighbors_to_fill((position.x(), position.y()), self.max_bounds, self.OBSTACLE_COLOR)
+
+        self.root_quad.grow_to_size(self.max_bounds)
