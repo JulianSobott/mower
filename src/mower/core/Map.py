@@ -54,8 +54,7 @@ class Map:
     def __getitem__(self, index):
         return self.cells[index]
 
-    @staticmethod
-    def add_line_data(pos1: Point, pos2: Point, thickness: int, data: np.array, data_val: int):
+    def add_line_data(self, pos1: Point, pos2: Point, thickness: int, data_val: int):
         # TODO: find way that ensures, that line is always thick enough (take angular in account)
         poly = np.array((
             (pos1[1] + thickness // 2, pos1[0] + thickness // 2),   # top left
@@ -70,7 +69,8 @@ class Map:
         #     (pos1[1] - thickness // 2, pos2[0] - thickness // 2),  # top right
         # ))
         rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
-        data[rr, cc] = data_val
+        #data[rr, cc] = data_val
+        self.root_quad.set_data_by_indices(rr, cc, data_val)
 
     def pos2index(self, x: Length, y: Length) -> Tuple[int, int]:
         """Transfer the position of the mower on the map to [row, col] indices of the map array."""

@@ -28,7 +28,7 @@ private classes
     :members:
 
 """
-from typing import Union, Type
+from typing import Union, Type, Tuple
 
 import numpy as np
 
@@ -36,7 +36,7 @@ from mower.utils import types
 from mower.core.Logging import logger
 
 #: HEIGHT, WIDTH
-DATA_SHAPE = (500, 500)
+DATA_SHAPE = (50, 50)
 
 
 class Quad:
@@ -173,18 +173,84 @@ class Quad:
                 extra_quads = np.math.ceil(bot_space / quad_shape[0])
                 self.grow(extra_quads, types.SOUTH, 1, quad_shape, create_quads=True)
 
-    def set_data_by_array(self, array: np.ndarray, row, col):
+    def set_data_by_array(self, array: np.ndarray, x: int, y: int):
+        """
+        NOT WORKING
+
+        :param array: numpy integer array filled with the new data
+        :param x: position on the map. Can be negative
+        :param y: position on the map. Can be negative
+        :return:
+        """
         if self.is_leaf:
-            self.data[row:row + array.shape[0], col:col + array.shape[1]] = array
+            self.data[y:y + array.shape[0], x:x + array.shape[1]] = array
         else:
-            x = 0
-            y = 0
-            while x >= array.shape[1] and y < array.shape[0]:  # TODO
+            curr_x = x
+            curr_y = y
+            array_idx_x = 0
+            array_idx_y = 0
+
+            while array_idx_x < array.shape[1] and array_idx_y < array.shape[0]:
+                (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_x, curr_y)
                 width = DATA_SHAPE[1] - array.shape[1] if DATA_SHAPE[1] - array.shape[1] > 0 else \
                     DATA_SHAPE[1]
-                # Danger! what if shape changes
                 height = DATA_SHAPE[0] - array.shape[0] if DATA_SHAPE[0] - array.shape[0] > 0 else \
                     DATA_SHAPE[0]
+                quad_array = array[array_idx_y * DATA_SHAPE[0]:array_idx_y * DATA_SHAPE[0] + height,
+                                   array_idx_x * DATA_SHAPE[1]:array_idx_x * DATA_SHAPE[1] + width]
+                self.data[quad_idx_y][quad_idx_x].set_data_by_array(quad_array, data_idx_x, data_idx_y)
+                curr_x += width
+                curr_y += height
+                array_idx_x += width
+                array_idx_y += height
+
+    def set_data_by_indices(self, rows: np.ndarray, cols: np.ndarray, values: Union[int, np.ndarray]):
+        """
+
+        TODO: only POINTS that are in the given quad. Maybe with indices of the indices. Then remove these points
+        :param rows:
+        :param cols:
+        :param values:
+        :return:
+        """
+        if self.is_leaf:
+            self.data[rows, cols] = values
+        else:
+
+            while len(rows) > 0 and len(cols) > 0:
+                curr_row = rows[0]
+                curr_col = cols[0]
+                (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_col, curr_row)
+                map_rows = rows[((-self.offset[1] * DATA_SHAPE[0]) + quad_idx_y * DATA_SHAPE[0] <= rows) &
+                                 (rows < (-self.offset[1] * DATA_SHAPE[0]) + (quad_idx_y + 1) * DATA_SHAPE[0])]
+                map_cols = cols[((-self.offset[0] * DATA_SHAPE[1]) + quad_idx_x * DATA_SHAPE[1] <= cols) &
+                                 (cols < (-self.offset[0] * DATA_SHAPE[1]) + (quad_idx_x + 1) * DATA_SHAPE[1])]
+
+                rows = np.setdiff1d(rows, map_rows)
+                cols = np.setdiff1d(cols, map_cols)
+
+                quad_rows = map_rows - (quad_idx_y - self.offset[1]) * DATA_SHAPE[0]
+                quad_cols = map_cols - (quad_idx_y - self.offset[1]) * DATA_SHAPE[0]
+                if isinstance(values, int):
+                    quad_values = values
+                else:
+                    quad_values = values[quad_rows, quad_cols]
+
+                self.data[quad_idx_y][quad_idx_x].set_data_by_indices(quad_rows, quad_cols, quad_values)
+            assert len(rows) == 0 and len(cols) == 0, f"Rows {len(rows)} and cols {cols} must be same size"
+
+    def _pos_to_indices(self, x: int, y: int) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+        """
+
+        :param x: position
+        :param y: position
+        :return: ((quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x))
+        """
+        quad_idx_x = x // DATA_SHAPE[1] + self.offset[0]
+        quad_idx_y = y // DATA_SHAPE[0] + self.offset[1]
+        data_idx_x = x % DATA_SHAPE[1]
+        data_idx_y = y % DATA_SHAPE[0]
+        return (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x)
 
     def __getitem__(self, item) -> np.ndarray:
         return self.data[item]

@@ -62,6 +62,14 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.max_bounds = [0, 0, self.window_size.x(), self.window_size.y()]
         self.root_quad.grow_to_size(self.max_bounds)
 
+        # test_arr = np.full((60, 60), self.OBSTACLE_COLOR)
+        rows = np.array(range(100))
+        cols = np.array(range(100))
+        self.root_quad.set_data_by_indices(rows, cols, self.OBSTACLE_COLOR)
+        self.add_line_data((10, 10), (50, 10), 5, self.OBSTACLE_COLOR)
+        # self.root_quad.set_data_by_array(test_arr, 0, 0)
+        # self.root_quad.set_data_by_array(test_arr, 60, 60)
+
         self.map_offset = [0, 0]
 
         self.transformation = QtGui.QTransform()
@@ -107,12 +115,12 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
         if self.mouse_move_mode == "DRAW":
             stroke_width = 10  # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
+
             try:
 
                 self.add_line_data((last_global_pos.x(), last_global_pos.y()),
                                    (global_pos.x(), global_pos.y()),
                                    stroke_width,
-                                   self.cells,
                                    self.OBSTACLE_COLOR)
                 # logger.debug(f"{global_pos}")
                 # logger.debug(f"{self.index2pos(global_pos.x(), global_pos.y())}")
@@ -146,6 +154,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
     def draw_quad(self, painter, quad: Quad, x, y):
         qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], quad.data.strides[0], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)
+
         painter.drawImage(x, y, qi)
         # pix_map = QtGui.QPixmap.fromImage(qi)
         # painter.drawPixmap(x, y, pix_map)
