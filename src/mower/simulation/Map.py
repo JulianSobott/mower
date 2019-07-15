@@ -73,29 +73,15 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
     def draw(self, painter, *args):
         painter.setTransform(self.transformation, combine=True)
-        drawn = 0
         for row in range(self.root_quad.shape[0]):
             for col in range(self.root_quad.shape[1]):
                 quad: Quad = self.root_quad[row][col]
                 pos_x = (-self.root_quad.offset[0] + col) * quad.shape[1]
                 pos_y = (-self.root_quad.offset[1] + row) * quad.shape[0]
-                #if quad is not None:
                 if (quad is not None and
                         self.max_bounds[0] <= pos_x + quad.shape[1] and pos_x <= self.max_bounds[2] and
                         self.max_bounds[1] <= pos_y + quad.shape[0] and pos_y <= self.max_bounds[3]):
                     self.draw_quad(painter, quad, pos_x, pos_y)
-                    drawn += 1
-        #logger.debug(f"DRAWN: {drawn} quads")
-
-        # # self.center_quad.render(painter, (0, 0), self.max_bounds, self.color_table)     # fix position
-        # self.cells = np.full((100, 100), 1, np.uint8, 'C')
-        # render_cells = np.repeat(np.repeat(self.cells, 3, axis=0), 2, axis=1)
-        # qi = QtGui.QImage(render_cells.data, 300, 200, QtGui.QImage.Format_Indexed8)
-        # qi.setColorTable(self.color_table)
-        # # painter.drawImage(0, 0, qi)
-        # self.pix_map = QtGui.QPixmap.fromImage(qi)
-        # painter.setTransform(self.transformation, combine=True)
-        # painter.drawPixmap(0, 0, self.pix_map)
         for item in self.items:
             item.draw(painter, self.is_global)
 
@@ -159,8 +145,9 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
     def draw_quad(self, painter, quad: Quad, x, y):
         qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)
-        pix_map = QtGui.QPixmap.fromImage(qi)
-        painter.drawPixmap(x, y, pix_map)
+        painter.drawImage(x, y, qi)
+        # pix_map = QtGui.QPixmap.fromImage(qi)
+        # painter.drawPixmap(x, y, pix_map)
 
     def updated_transformation(self):
         minimum: QtCore.QPoint = self.transformation.inverted()[0].map(QtCore.QPoint(0, 0))

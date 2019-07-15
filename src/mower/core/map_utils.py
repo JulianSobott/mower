@@ -39,8 +39,7 @@ DEFAULT_DATA_SHAPE = (500, 500)
 
 
 class Quad:
-
-    SURROUND_WITH_BORDER = True     # just for debugging
+    SURROUND_WITH_BORDER = True  # just for debugging
 
     def __init__(self, init_value, shape, data_type: Type = np.uint8, parent: 'Quad' = None):
         self.parent: Quad = parent
@@ -58,9 +57,9 @@ class Quad:
 
         #: How many quads added to the LEFT and to the TOP
         self.offset = [0, 0]
+
         #: True: data contains primitives, False: data contains Quads
-        # TODO
-        self.is_leaf = True
+        self.is_leaf = data_type is np.uint8
 
     def value_at(self, x: int, y: int) -> Union[int, 'Quad']:
         """
@@ -153,6 +152,19 @@ class Quad:
                 extra_quads = np.math.ceil(bot_space / quad_shape[0])
                 self.grow(extra_quads, types.SOUTH, 1, quad_shape, create_quads=True)
 
+    def set_data_by_array(self, array: np.ndarray, row, col):
+        if self.is_leaf:
+            self.data[row:row + array.shape[0], col:col + array.shape[1]] = array
+        else:
+            x = 0
+            y = 0
+            while x >= array.shape[1] and y < array.shape[0]:  # TODO
+                width = DEFAULT_DATA_SHAPE[1] - array.shape[1] if DEFAULT_DATA_SHAPE[1] - array.shape[1] > 0 else \
+                    DEFAULT_DATA_SHAPE[1]
+                # Danger! what if shape changes
+                height = DEFAULT_DATA_SHAPE[0] - array.shape[0] if DEFAULT_DATA_SHAPE[0] - array.shape[0] > 0 else \
+                    DEFAULT_DATA_SHAPE[0]
+
     def __getitem__(self, item) -> np.ndarray:
         return self.data[item]
 
@@ -166,6 +178,6 @@ class Quad:
 if __name__ == '__main__':
     q = Quad(None, (2, 2), Quad)
     q.grow(2, types.NORTH, 1, (10, 10), True)
-    #print(q.data)
+    # print(q.data)
     q.grow(2, types.EAST, 1, (10, 10), True)
     print(q.data)
