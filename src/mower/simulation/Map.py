@@ -144,7 +144,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         return core.CellType.by_value(self.cells[row][col])
 
     def draw_quad(self, painter, quad: Quad, x, y):
-        qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], QtGui.QImage.Format_Indexed8)
+        qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], quad.data.strides[0], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)
         painter.drawImage(x, y, qi)
         # pix_map = QtGui.QPixmap.fromImage(qi)
