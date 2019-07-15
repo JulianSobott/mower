@@ -35,7 +35,8 @@ import numpy as np
 from mower.utils import types
 from mower.core.Logging import logger
 
-DEFAULT_DATA_SHAPE = (500, 500)
+#: HEIGHT, WIDTH
+DATA_SHAPE = (500, 500)
 
 
 class Quad:
@@ -61,14 +62,34 @@ class Quad:
         #: True: data contains primitives, False: data contains Quads
         self.is_leaf = data_type is np.uint8
 
-    def value_at(self, x: int, y: int) -> Union[int, 'Quad']:
+    def get_value_at(self, x: int, y: int) -> int:
         """
 
-        :param x:
-        :param y:
+        :param x: position
+        :param y: position
         :return:
         """
-        return self.data[y][x]
+        if self.is_leaf:
+            return self.data[y][x]
+        else:
+            x_idx = x // DATA_SHAPE[1] + self.offset[0]
+            y_idx = y // DATA_SHAPE[0] + self.offset[1]
+            return self.data[y_idx][x_idx].get_value_at(x % DATA_SHAPE[1], y % DATA_SHAPE[0])
+
+    def set_value_at(self, x: int, y: int, value: int) -> None:
+        """
+
+        :param x: position
+        :param y: position
+        :param value:
+        :return:
+        """
+        if self.is_leaf:
+            self.data[y][x] = value
+        else:
+            x_idx = x // DATA_SHAPE[1] + self.offset[0]
+            y_idx = y // DATA_SHAPE[0] + self.offset[1]
+            self.data[y_idx][x_idx].set_value_at(x % DATA_SHAPE[1], y % DATA_SHAPE[0], value)
 
     def grow(self, amount: int, direction: types.Direction, init_value, shape=None, create_quads=False) -> None:
         """
@@ -159,11 +180,11 @@ class Quad:
             x = 0
             y = 0
             while x >= array.shape[1] and y < array.shape[0]:  # TODO
-                width = DEFAULT_DATA_SHAPE[1] - array.shape[1] if DEFAULT_DATA_SHAPE[1] - array.shape[1] > 0 else \
-                    DEFAULT_DATA_SHAPE[1]
+                width = DATA_SHAPE[1] - array.shape[1] if DATA_SHAPE[1] - array.shape[1] > 0 else \
+                    DATA_SHAPE[1]
                 # Danger! what if shape changes
-                height = DEFAULT_DATA_SHAPE[0] - array.shape[0] if DEFAULT_DATA_SHAPE[0] - array.shape[0] > 0 else \
-                    DEFAULT_DATA_SHAPE[0]
+                height = DATA_SHAPE[0] - array.shape[0] if DATA_SHAPE[0] - array.shape[0] > 0 else \
+                    DATA_SHAPE[0]
 
     def __getitem__(self, item) -> np.ndarray:
         return self.data[item]

@@ -60,6 +60,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
         #: x, y, width, height
         self.max_bounds = [0, 0, self.window_size.x(), self.window_size.y()]
+        self.root_quad.grow_to_size(self.max_bounds)
 
         self.map_offset = [0, 0]
 

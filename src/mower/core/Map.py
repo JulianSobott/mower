@@ -23,7 +23,7 @@ import enum
 import skimage.draw
 
 from mower.core.Logging import logger
-from mower.core.map_utils import Quad, DEFAULT_DATA_SHAPE
+from mower.core.map_utils import Quad, DATA_SHAPE
 from mower.utils import Length
 from mower.utils.types import Point
 from mower.utils import Converter
@@ -49,7 +49,7 @@ class Map:
 
     def __init__(self, size: Tuple[Length, Length] = (Length(10, Length.METER), Length(10, Length.METER))):
         self.root_quad = Quad(None, (2, 2), Quad)
-        self.root_quad.fill_with_quads(CellType.GRASS.value, DEFAULT_DATA_SHAPE)
+        self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)
 
     def __getitem__(self, index):
         return self.cells[index]
