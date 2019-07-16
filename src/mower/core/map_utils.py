@@ -4,27 +4,11 @@
 :author: Julian Sobott
 :author: 
 
-public functions
------------------
-
-.. autofunction:: XXX
 
 public classes
 -----------------
 
-.. autoclass:: XXX
-    :members:
-
-
-private functions
-------------------
-
-.. autofunction:: XXX
-
-private classes
------------------
-
-.. autoclass:: XXX
+.. autoclass:: Quad
     :members:
 
 """
@@ -36,10 +20,15 @@ from mower.utils import types
 from mower.core.Logging import logger
 
 #: HEIGHT, WIDTH
-DATA_SHAPE = (50, 50)
+DATA_SHAPE = (500, 500)
 
 
 class Quad:
+    """
+    A Quad is part of the map. The map is build up from quads that are placed grid wise. A Quad can either contain
+    other quads store in an 2d array or if it is a leaf it contains data stored inside an integer array.
+    """
+
     SURROUND_WITH_BORDER = True  # just for debugging
 
     def __init__(self, init_value, shape, data_type: Type = np.uint8, parent: 'Quad' = None):
@@ -265,10 +254,3 @@ class Quad:
     def __repr__(self):
         return f"Quad(id={id(self)})"
 
-
-if __name__ == '__main__':
-    q = Quad(None, (2, 2), Quad)
-    q.grow(2, types.NORTH, 1, (10, 10), True)
-    # print(q.data)
-    q.grow(2, types.EAST, 1, (10, 10), True)
-    print(q.data)

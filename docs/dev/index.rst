@@ -10,6 +10,7 @@ reference.
     getting_started
     git
     todos
+    simulation/index
 
 Software
 --------
