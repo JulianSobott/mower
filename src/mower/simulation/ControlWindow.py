@@ -3,10 +3,12 @@
 @brief: Window, that provide control for the simulation
 @description:
 """
+import functools
 import time
 
 from PyQt5 import QtWidgets, QtCore
 
+from mower import core
 from mower.simulation import BaseWindow
 from mower.simulation.Logging import logger
 from mower.simulation.global_window import GlobalWindowInterface
@@ -42,17 +44,31 @@ class ControlWindow(BaseWindow):
         self.lbl_fps = QtWidgets.QLabel("FPS: ", self)
         self.lbl_fps.move(20, 40)
 
-        btn_draw_map = QtWidgets.QPushButton(self)
-        btn_draw_map.setText("Draw map")
-        btn_draw_map.move(20, 70)
-        btn_draw_map.clicked.connect(self._click_draw_map)
-
         self.lbl_simulation_speed = QtWidgets.QLabel("Simulation speed: 1.0", self)
         self.lbl_simulation_speed.setGeometry(20, 110, 230, 10)
         slider_simulation_speed = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
         slider_simulation_speed.setSliderPosition(50)
         slider_simulation_speed.sliderMoved.connect(self._slider_simulation_speed_update)
         slider_simulation_speed.move(300, 110)
+
+        lbl_drawing_header = QtWidgets.QLabel("Drawing", self)
+        lbl_drawing_header.move(20, 50)
+
+        grp_cell_type = QtWidgets.QGroupBox("Cell Type", self)
+        rb_grass = QtWidgets.QRadioButton("Grass", self)
+        rb_grass.clicked.connect(functools.partial(self._update_drawing_cell_type, core.CellType.GRASS))
+        rb_obstacle = QtWidgets.QRadioButton("Obstacle", self)
+        rb_obstacle.clicked.connect(functools.partial(self._update_drawing_cell_type, core.CellType.OBSTACLE))
+        rb_undefined = QtWidgets.QRadioButton("Undefined", self)
+        rb_undefined.clicked.connect(functools.partial(self._update_drawing_cell_type, core.CellType.UNDEFINED))
+
+        vbox_cell_type = QtWidgets.QVBoxLayout()
+        vbox_cell_type.addWidget(rb_grass)
+        vbox_cell_type.addWidget(rb_obstacle)
+        vbox_cell_type.addWidget(rb_undefined)
+        vbox_cell_type.addStretch(1)
+        grp_cell_type.setLayout(vbox_cell_type)
+        grp_cell_type.setGeometry(20, 150, 100, 100)
 
     def update(self):
         self.update_fps()
@@ -84,3 +100,7 @@ class ControlWindow(BaseWindow):
         self.local_window.set_time_scale(time_scale)
         self.global_window.set_time_scale(time_scale)
         self.lbl_simulation_speed.setText(f"Simulation speed: {time_scale}")
+
+    def _update_drawing_cell_type(self, new_type: core.CellType):
+        self.local_window.set_pen_cell_type(new_type)
+        self.global_window.set_pen_cell_type(new_type)

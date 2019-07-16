@@ -50,7 +50,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
         self.window_size = QtCore.QPoint(500, 600)
 
-        self.allow_draw_map = True
+        self.pen_cell_type = core.CellType.OBSTACLE
 
         #: Position relative to window (All transformations are ignored and must be mapped)
         self.last_local_pos = None
@@ -86,9 +86,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         for item in self.items:
             item.draw(painter, self.is_global)
 
-    def set_draw_map(self, allow):
-        self.allow_draw_map = allow
-
     def mousePressEvent(self, mouse_event: QtGui.QMouseEvent):
         if mouse_event.button() == 1:
             # left
@@ -111,7 +108,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             self.add_line_data((last_global_pos.x(), last_global_pos.y()),
                                (global_pos.x(), global_pos.y()),
                                stroke_width,
-                               self.OBSTACLE_COLOR)
+                               self.pen_cell_type.value)
         else:
             delta = global_pos - last_global_pos
             self.transformation.translate(delta.x(), delta.y())

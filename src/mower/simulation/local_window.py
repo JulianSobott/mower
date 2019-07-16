@@ -18,7 +18,7 @@ private classes
 
 
 """
-from mower import simulation
+from mower import simulation, core
 
 __all__ = ["LocalWindowInterface"]
 
@@ -48,3 +48,6 @@ class LocalWindowInterface(simulation.BaseWindowInterface):
     def __init__(self, mower: simulation.Mower):
         super().__init__(LocalWindow(mower))
         self._control_window = None
+
+    def set_pen_cell_type(self, new_type: core.CellType):
+        self._window.local_map.pen_cell_type = new_type

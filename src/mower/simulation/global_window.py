@@ -18,7 +18,7 @@ private classes
 
 
 """
-from mower import simulation
+from mower import simulation, core
 
 __all__ = ["GlobalWindowInterface"]
 
@@ -58,4 +58,7 @@ class GlobalWindowInterface(simulation.BaseWindowInterface):
     def map(self):
         self._window: GlobalWindow
         return self._window.map
+
+    def set_pen_cell_type(self, new_type: core.CellType):
+        self._window.global_map.pen_cell_type = new_type
 
