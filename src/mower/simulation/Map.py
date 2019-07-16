@@ -66,7 +66,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         rows = np.array(range(100))
         cols = np.array(range(100))
         self.root_quad.set_data_by_indices(rows, cols, self.OBSTACLE_COLOR)
-        self.add_line_data((10, 10), (50, 10), 5, self.OBSTACLE_COLOR)
+        self.add_line_data((10, 10), (100, 10), 5, self.OBSTACLE_COLOR)
         # self.root_quad.set_data_by_array(test_arr, 0, 0)
         # self.root_quad.set_data_by_array(test_arr, 60, 60)
 

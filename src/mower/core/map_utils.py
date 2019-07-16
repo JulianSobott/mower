@@ -216,21 +216,25 @@ class Quad:
         if self.is_leaf:
             self.data[rows, cols] = values
         else:
-
             while len(rows) > 0 and len(cols) > 0:
                 curr_row = rows[0]
                 curr_col = cols[0]
                 (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_col, curr_row)
-                map_rows = rows[((-self.offset[1] * DATA_SHAPE[0]) + quad_idx_y * DATA_SHAPE[0] <= rows) &
-                                 (rows < (-self.offset[1] * DATA_SHAPE[0]) + (quad_idx_y + 1) * DATA_SHAPE[0])]
-                map_cols = cols[((-self.offset[0] * DATA_SHAPE[1]) + quad_idx_x * DATA_SHAPE[1] <= cols) &
-                                 (cols < (-self.offset[0] * DATA_SHAPE[1]) + (quad_idx_x + 1) * DATA_SHAPE[1])]
+                map_indices = []
+                for i in range(len(rows)):
+                    if ((-self.offset[1] * DATA_SHAPE[0]) + quad_idx_y * DATA_SHAPE[0] <= rows[i] < (
+                            -self.offset[1] * DATA_SHAPE[0]) + (quad_idx_y + 1) * DATA_SHAPE[0]) and (
+                            (-self.offset[0] * DATA_SHAPE[1]) + quad_idx_x * DATA_SHAPE[1] <= cols[i] < (
+                            -self.offset[0] * DATA_SHAPE[1]) + (quad_idx_x + 1) * DATA_SHAPE[1]):
+                        map_indices.append(i)
 
-                rows = np.setdiff1d(rows, map_rows)
-                cols = np.setdiff1d(cols, map_cols)
+                map_rows = rows[map_indices]
+                map_cols = cols[map_indices]
+                rows = np.delete(rows, map_indices)
+                cols = np.delete(cols, map_indices)
 
                 quad_rows = map_rows - (quad_idx_y - self.offset[1]) * DATA_SHAPE[0]
-                quad_cols = map_cols - (quad_idx_y - self.offset[1]) * DATA_SHAPE[0]
+                quad_cols = map_cols - (quad_idx_x - self.offset[0]) * DATA_SHAPE[1]
                 if isinstance(values, int):
                     quad_values = values
                 else:
