@@ -62,14 +62,11 @@ class Map:
             (pos2[1] - thickness // 2, pos2[0] - thickness // 2),   # bottom right
             (pos2[1] + thickness // 2, pos2[0] + thickness // 2),   # top right
         ))
-        # poly = np.array((
-        #     (0, 0),  # top left
-        #     (pos2[1] + thickness // 2, pos1[0] + thickness // 2),  # bottom left
-        #     (pos2[1] - thickness // 2, pos2[0] - thickness // 2),  # bottom right
-        #     (pos1[1] - thickness // 2, pos2[0] - thickness // 2),  # top right
-        # ))
+        poly += (np.array(self.root_quad.offset) * np.array(DATA_SHAPE))[[1, 0]]
         rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
-        #data[rr, cc] = data_val
+        rr -= self.root_quad.offset[1] * DATA_SHAPE[1]
+        cc -= self.root_quad.offset[0] * DATA_SHAPE[0]
+
         self.root_quad.set_data_by_indices(rr, cc, data_val)
 
     def pos2index(self, x: Length, y: Length) -> Tuple[int, int]:

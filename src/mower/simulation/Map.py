@@ -62,14 +62,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.max_bounds = [0, 0, self.window_size.x(), self.window_size.y()]
         self.root_quad.grow_to_size(self.max_bounds)
 
-        # test_arr = np.full((60, 60), self.OBSTACLE_COLOR)
-        rows = np.array(range(100))
-        cols = np.array(range(100))
-        self.root_quad.set_data_by_indices(rows, cols, self.OBSTACLE_COLOR)
-        self.add_line_data((10, 10), (100, 10), 5, self.OBSTACLE_COLOR)
-        # self.root_quad.set_data_by_array(test_arr, 0, 0)
-        # self.root_quad.set_data_by_array(test_arr, 60, 60)
-
         self.map_offset = [0, 0]
 
         self.transformation = QtGui.QTransform()
@@ -116,17 +108,10 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         if self.mouse_move_mode == "DRAW":
             stroke_width = 10  # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
 
-            try:
-
-                self.add_line_data((last_global_pos.x(), last_global_pos.y()),
-                                   (global_pos.x(), global_pos.y()),
-                                   stroke_width,
-                                   self.OBSTACLE_COLOR)
-                # logger.debug(f"{global_pos}")
-                # logger.debug(f"{self.index2pos(global_pos.x(), global_pos.y())}")
-                # logger.debug(f"{self.pos2index(*self.index2pos(global_pos.x(), global_pos.y()))}")
-            except IndexError:
-                pass  # Drawing outside the window
+            self.add_line_data((last_global_pos.x(), last_global_pos.y()),
+                               (global_pos.x(), global_pos.y()),
+                               stroke_width,
+                               self.OBSTACLE_COLOR)
         else:
             delta = global_pos - last_global_pos
             self.transformation.translate(delta.x(), delta.y())
