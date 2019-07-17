@@ -6,9 +6,9 @@
 import functools
 import time
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
-from mower import core
+from mower import core, simulation
 from mower.simulation import BaseWindow
 from mower.simulation.Logging import logger
 from mower.simulation.global_window import GlobalWindowInterface
@@ -51,8 +51,9 @@ class ControlWindow(BaseWindow):
         slider_simulation_speed.sliderMoved.connect(self._slider_simulation_speed_update)
         slider_simulation_speed.move(300, 110)
 
-        lbl_drawing_header = QtWidgets.QLabel("Drawing", self)
-        lbl_drawing_header.move(20, 50)
+        lbl_drawing_header = QtWidgets.QLabel("Drawing:", self)
+        lbl_drawing_header.setFont(QtGui.QFont("Times", 14, QtGui.QFont.Bold))
+        lbl_drawing_header.move(20, 130)
 
         grp_cell_type = QtWidgets.QGroupBox("Cell Type", self)
         rb_grass = QtWidgets.QRadioButton("Grass", self)
@@ -62,13 +63,38 @@ class ControlWindow(BaseWindow):
         rb_undefined = QtWidgets.QRadioButton("Undefined", self)
         rb_undefined.clicked.connect(functools.partial(self._update_drawing_cell_type, core.CellType.UNDEFINED))
 
+        rb_obstacle.setChecked(True)  # Default value in simulation.Map
+
         vbox_cell_type = QtWidgets.QVBoxLayout()
         vbox_cell_type.addWidget(rb_grass)
         vbox_cell_type.addWidget(rb_obstacle)
         vbox_cell_type.addWidget(rb_undefined)
         vbox_cell_type.addStretch(1)
         grp_cell_type.setLayout(vbox_cell_type)
-        grp_cell_type.setGeometry(20, 150, 100, 100)
+        grp_cell_type.setGeometry(20, 170, 100, 100)
+
+        grp_pen_drawing_mode = QtWidgets.QGroupBox("Cell Type", self)
+        rb_free_hand = QtWidgets.QRadioButton("Free hand", self)
+        rb_free_hand.clicked.connect(functools.partial(self._update_pen_drawing_mode, simulation.DrawingMode.FREE_HAND))
+        rb_rectangle = QtWidgets.QRadioButton("Rectangle", self)
+        rb_rectangle.clicked.connect(functools.partial(self._update_pen_drawing_mode, simulation.DrawingMode.RECTANGLE))
+        rb_line = QtWidgets.QRadioButton("Line", self)
+        rb_line.setEnabled(False)
+        rb_line.clicked.connect(functools.partial(self._update_pen_drawing_mode, simulation.DrawingMode.LINE))
+        rb_oval = QtWidgets.QRadioButton("Oval", self)
+        rb_oval.clicked.connect(functools.partial(self._update_pen_drawing_mode, simulation.DrawingMode.OVAL))
+        rb_oval.setEnabled(False)
+
+        rb_rectangle.setChecked(True)  # Default value in simulation.Map
+
+        vbox_cell_type = QtWidgets.QVBoxLayout()
+        vbox_cell_type.addWidget(rb_free_hand)
+        vbox_cell_type.addWidget(rb_rectangle)
+        vbox_cell_type.addWidget(rb_line)
+        vbox_cell_type.addWidget(rb_oval)
+        vbox_cell_type.addStretch(1)
+        grp_pen_drawing_mode.setLayout(vbox_cell_type)
+        grp_pen_drawing_mode.setGeometry(120, 170, 100, 100)
 
     def update(self):
         self.update_fps()
@@ -104,3 +130,7 @@ class ControlWindow(BaseWindow):
     def _update_drawing_cell_type(self, new_type: core.CellType):
         self.local_window.set_pen_cell_type(new_type)
         self.global_window.set_pen_cell_type(new_type)
+
+    def _update_pen_drawing_mode(self, new_mode: 'simulation.DrawingMode'):
+        self.local_window.set_pen_drawing_mode(new_mode)
+        self.global_window.set_pen_drawing_mode(new_mode)

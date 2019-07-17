@@ -51,3 +51,8 @@ class LocalWindowInterface(simulation.BaseWindowInterface):
 
     def set_pen_cell_type(self, new_type: core.CellType):
         self._window.local_map.pen_cell_type = new_type
+
+    def set_pen_drawing_mode(self, new_mode: 'simulation.DrawingMode'):
+        self._window.local_map.pen_drawing_mode = new_mode
+
+
