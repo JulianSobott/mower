@@ -164,7 +164,6 @@ class Quad:
 
     def set_data_by_array(self, array: np.ndarray, x: int, y: int):
         """
-        NOT WORKING
 
         :param array: numpy integer array filled with the new data
         :param x: position on the map. Can be negative
