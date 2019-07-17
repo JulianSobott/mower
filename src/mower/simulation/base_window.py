@@ -85,7 +85,9 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
         if self.is_paused:
             time_passed = 0
         else:
-            time_passed = (time.time() - self.last_update) * self.time_scale
+            now = time.time()
+            time_passed = (now - self.last_update) * self.time_scale
+            self.last_update = now
         for item in self.items:
             try:
                 item.update_rendering(time_passed)
