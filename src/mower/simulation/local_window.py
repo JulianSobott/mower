@@ -33,9 +33,9 @@ class LocalWindow(simulation.BaseWindow):
     TITLE = "Local Window"
     SIZE = 0, 50, 500, 600
 
-    def __init__(self, mower: simulation.Mower):
+    def __init__(self, mower_obj: simulation.Mower):
         super().__init__()
-        self.mower = mower
+        self.mower = mower_obj
         self.local_map: simulation.Map = self.mower.local_map
         self.local_map.items.append(self.mower)
         self.items.append(self.local_map)
@@ -43,11 +43,14 @@ class LocalWindow(simulation.BaseWindow):
 
         self.show()
 
+    def restart(self):
+        self.local_map.reset()
+
 
 class LocalWindowInterface(simulation.BaseWindowInterface):
 
-    def __init__(self, mower: simulation.Mower):
-        super().__init__(LocalWindow(mower))
+    def __init__(self, mower_obj: simulation.Mower):
+        super().__init__(LocalWindow(mower_obj))
         self._control_window = None
 
     def set_pen_cell_type(self, new_type: mower.core.map_utils.CellType):
@@ -55,5 +58,8 @@ class LocalWindowInterface(simulation.BaseWindowInterface):
 
     def set_pen_drawing_mode(self, new_mode: 'simulation.DrawingMode'):
         self._window.local_map.pen_drawing_mode = new_mode
+
+    def restart(self):
+        self._window.restart()
 
 

@@ -15,6 +15,10 @@ Top to bottom tasks
     - Setup mainloop
         - One in core or separate in sim and real?
     - Define interface between simulation, core and real
+    - Map
+        - load map
+        - Save map
+    - Generalize sensor data
 
 - Image recognition
     - Collect training and test images
@@ -24,7 +28,7 @@ Top to bottom tasks
         - Create an algorithm with proper output
             - Define the outputs and inputs
 
-- Simulation surface
+- Simulation
     - Mower can drive
         - Extends the core drive functionality
     - Controls
@@ -36,4 +40,5 @@ Top to bottom tasks
 
     - if mower reaches edge increase/add array
     - Change units to fit real values. sizes, velocity, ...
-    - Constant fps
+    - Config file
+

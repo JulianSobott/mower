@@ -38,9 +38,12 @@ class ControlWindow(BaseWindow):
         else:
             self.local_window.pause()
             self.global_window.pause()
-
         self.cb_run.stateChanged.connect(self.local_window.toggle_pause)
         self.cb_run.stateChanged.connect(self.global_window.toggle_pause)
+
+        btn_restart = QtWidgets.QPushButton("Restart", self)
+        btn_restart.move(60, 20)
+        btn_restart.clicked.connect(self._restart)
 
         self.lbl_fps = QtWidgets.QLabel("FPS: ", self)
         self.lbl_fps.move(20, 40)
@@ -135,3 +138,7 @@ class ControlWindow(BaseWindow):
     def _update_pen_drawing_mode(self, new_mode: 'simulation.DrawingMode'):
         self.local_window.set_pen_drawing_mode(new_mode)
         self.global_window.set_pen_drawing_mode(new_mode)
+
+    def _restart(self):
+        self.local_window.restart()
+        self.global_window.restart()

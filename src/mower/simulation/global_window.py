@@ -35,9 +35,9 @@ class GlobalWindow(simulation.BaseWindow):
     TITLE = "Global Window"
     SIZE = 510, 50, 500, 600
 
-    def __init__(self, mower: simulation.Mower):
+    def __init__(self, mower_obj: simulation.Mower):
         super().__init__()
-        self.mower = mower
+        self.mower = mower_obj
         self.global_map = simulation.Map([self.mower], is_global=True)
         self.items.append(self.global_map)
         self.event_receivers.append(self.global_map)
@@ -48,11 +48,14 @@ class GlobalWindow(simulation.BaseWindow):
     def map(self):
         return self.global_map
 
+    def restart(self):
+        self.global_map.reset()
+
 
 class GlobalWindowInterface(simulation.BaseWindowInterface):
 
-    def __init__(self, mower: simulation.Mower):
-        super().__init__(GlobalWindow(mower))
+    def __init__(self, mower_obj: simulation.Mower):
+        super().__init__(GlobalWindow(mower_obj))
         self._control_window = None
 
     @property
@@ -65,3 +68,6 @@ class GlobalWindowInterface(simulation.BaseWindowInterface):
 
     def set_pen_drawing_mode(self, new_mode: 'simulation.DrawingMode'):
         self._window.global_map.pen_drawing_mode = new_mode
+
+    def restart(self):
+        self._window.restart()
