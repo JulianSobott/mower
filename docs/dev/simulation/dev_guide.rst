@@ -1,21 +1,3 @@
-TODO next
-===========
-
-- Add layout to control window
-- Add parameters for drawing on map to control window
-    - draw type
-        - grass
-        - obstacle
-    - clear map
-    - fill area
-    - line thickness
-    - (draw shapes)
-- Make it possible for infinity map
-    - if mower reaches edge increase/add array
-- Change units to fit real values. sizes, velocity, ...
-- Constant fps
-
-
 Relations
 -----------
 

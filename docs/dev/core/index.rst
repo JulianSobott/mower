@@ -1,0 +1,6 @@
+Core
+========
+
+.. toctree::
+
+    map

@@ -41,18 +41,17 @@ class CellType(enum.Enum):
 
 
 class Map:
-
+    """
+    The map stores data for each cell. It is build up from :class:`mower.core.map_utils.Quad` 's.
+    """
     #: How big is a cell in the real world. The smaller the value the more precise is the map, but also the bigger it
     #: gets (memory).
     #: Use the converter unit to fit pixel conversion properly
     CELL_SIZE = Length(1/Converter.PX2M_DIVIDER, Length.METER)
 
-    def __init__(self, size: Tuple[Length, Length] = (Length(10, Length.METER), Length(10, Length.METER))):
+    def __init__(self):
         self.root_quad = Quad(None, (2, 2), Quad)
         self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)
-
-    def __getitem__(self, index):
-        return self.cells[index]
 
     def add_line_data(self, pos1: Point, pos2: Point, thickness: int, data_val: int):
         # TODO: find way that ensures, that line is always thick enough (take angular in account)
@@ -68,10 +67,3 @@ class Map:
         cc -= self.root_quad.offset[0] * DATA_SHAPE[0]
 
         self.root_quad.set_data_by_indices(rr, cc, data_val)
-
-    def pos2index(self, x: Length, y: Length) -> Tuple[int, int]:
-        """Transfer the position of the mower on the map to [row, col] indices of the map array."""
-        return (y / self.CELL_SIZE).int_val(), (x / self.CELL_SIZE).int_val()
-
-    def index2pos(self, row: int, col: int):
-        return col * self.CELL_SIZE, row * self.CELL_SIZE

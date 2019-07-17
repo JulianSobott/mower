@@ -44,5 +44,5 @@ TODO: make possible to draw map on multiple windows with different options
 API
 -----------
 
-.. automodule:: mower.core.map_utils
+.. automodule:: mower.simulation.Map
 

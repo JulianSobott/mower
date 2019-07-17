@@ -1,7 +1,33 @@
 """
-@author: Julian
-@brief:
-@description:
+:module: mower.simulation.Map
+:synopsis: Class that renders a map and allows editing it
+:author: Julian Sobott
+:author:
+
+public classes
+-----------------
+
+.. autoclass:: Map
+    :members:
+    :undoc-members:
+
+.. autoclass:: DrawingMode
+    :members:
+    :undoc-members:
+
+private classes
+-----------------
+
+.. autoclass:: Shape
+    :members:
+    :undoc-members:
+
+.. autoclass:: Rectangle
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 """
 from abc import ABC
 from typing import List, Union

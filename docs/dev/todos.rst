@@ -2,14 +2,14 @@ TODOs
 =========
 
 Milestones
-*************
+---------------
 
 - Image Recognition
 - Simulation surface
 - Core
 
 Top to bottom tasks
-********************
+---------------------
 
 - Core
     - Setup mainloop
@@ -27,10 +27,13 @@ Top to bottom tasks
 - Simulation surface
     - Mower can drive
         - Extends the core drive functionality
-    - User can manipulate map
-        - Add/remove obstacles, borders
     - Controls
-        - Simulation speed
-        - Start
-        - Pause
         - Restart
+    - Add layout to control window
+        - clear map
+        - fill area
+        - line thickness
+
+    - if mower reaches edge increase/add array
+    - Change units to fit real values. sizes, velocity, ...
+    - Constant fps

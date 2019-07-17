@@ -1,4 +1,3 @@
-==========
 Dev guide
 ==========
 
@@ -6,11 +5,13 @@ This file is the entry point, when you start developing at this project. Read it
 reference.
 
 .. toctree::
+    :maxdepth: 2
 
     getting_started
     git
     todos
     simulation/index
+    core/index
 
 Software
 --------
