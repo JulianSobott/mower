@@ -174,29 +174,31 @@ class Quad:
         if self.is_leaf:
             self.data[y:y + array.shape[0], x:x + array.shape[1]] = array
         else:
-            curr_x = x
             curr_y = y
-            array_idx_x = 0
             array_idx_y = 0
 
-            while array_idx_x < array.shape[1] and array_idx_y < array.shape[0]:
-                (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_x, curr_y)
-                width = DATA_SHAPE[1] - array.shape[1] if DATA_SHAPE[1] - array.shape[1] > 0 else \
-                    DATA_SHAPE[1]
-                height = DATA_SHAPE[0] - array.shape[0] if DATA_SHAPE[0] - array.shape[0] > 0 else \
-                    DATA_SHAPE[0]
-                quad_array = array[array_idx_y * DATA_SHAPE[0]:array_idx_y * DATA_SHAPE[0] + height,
-                                   array_idx_x * DATA_SHAPE[1]:array_idx_x * DATA_SHAPE[1] + width]
-                self.data[quad_idx_y][quad_idx_x].set_data_by_array(quad_array, data_idx_x, data_idx_y)
-                curr_x += width
+            while array_idx_y < array.shape[0]:
+                curr_x = x
+                array_idx_x = 0
+                height = 0
+                while array_idx_x < array.shape[1]:
+                    (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_x, curr_y)
+                    width = min((-self.offset[0] * DATA_SHAPE[1] + (quad_idx_x + 1) * DATA_SHAPE[1]) - curr_x,
+                                array.shape[1] - array_idx_x)
+                    height = min((-self.offset[1] * DATA_SHAPE[0] + (quad_idx_y + 1) * DATA_SHAPE[0]) - curr_y,
+                                 array.shape[0] - array_idx_y)
+
+                    quad_array = array[array_idx_y:array_idx_y + height,
+                                       array_idx_x:array_idx_x + width]
+                    self.data[quad_idx_y][quad_idx_x].set_data_by_array(quad_array, data_idx_x, data_idx_y)
+                    curr_x += width
+                    array_idx_x += width
                 curr_y += height
-                array_idx_x += width
                 array_idx_y += height
 
     def set_data_by_indices(self, rows: np.ndarray, cols: np.ndarray, values: Union[int, np.ndarray]):
         """
 
-        TODO: only POINTS that are in the given quad. Maybe with indices of the indices. Then remove these points
         :param rows:
         :param cols:
         :param values:
