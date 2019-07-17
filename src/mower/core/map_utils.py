@@ -243,8 +243,6 @@ class Quad:
         """Increases the value of every grass cell by one"""
         if self.is_leaf:
             self.data[(CellType.MIN_GRASS.value <= self.data) & (self.data < CellType.MAX_GRASS.value)] += 1
-            self.data[self.data == CellType.MAX_GRASS.value] = CellType.MIN_GRASS.value # debug
-            x = 0
         else:
             for row in self.data:
                 for quad in row:
@@ -282,5 +280,12 @@ class CellType(enum.Enum):
     MAX_GRASS = 40
 
     @classmethod
+    def _init(cls):
+        cls._values = {0: cls.UNDEFINED, 1: cls.GRASS, 2: cls.OBSTACLE,
+                       **{i: cls.GRASS for i in range(cls.MIN_GRASS.value, cls.MAX_GRASS.value + 1)}}
+
+    @classmethod
     def by_value(cls, val):
-        return {0: cls.UNDEFINED, 1: cls.GRASS, 2: cls.OBSTACLE, 20: cls.MIN_GRASS, 40: cls.MAX_GRASS}[val]
+        return cls._values[val]
+
+CellType._init()
