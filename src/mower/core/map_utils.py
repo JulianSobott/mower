@@ -242,7 +242,9 @@ class Quad:
     def grow_grass_cells(self):
         """Increases the value of every grass cell by one"""
         if self.is_leaf:
-            self.data[CellType.MIN_GRASS.value <= self.data < CellType.MAX_GRASS.value] += 1
+            self.data[(CellType.MIN_GRASS.value <= self.data) & (self.data < CellType.MAX_GRASS.value)] += 1
+            self.data[self.data == CellType.MAX_GRASS.value] = CellType.MIN_GRASS.value # debug
+            x = 0
         else:
             for row in self.data:
                 for quad in row:

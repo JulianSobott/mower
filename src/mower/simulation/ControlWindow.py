@@ -8,6 +8,7 @@ import time
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 
+import mower.core.map_utils
 from mower import core, simulation
 from mower.simulation import BaseWindow
 from mower.simulation.Logging import logger
@@ -57,11 +58,11 @@ class ControlWindow(BaseWindow):
 
         grp_cell_type = QtWidgets.QGroupBox("Cell Type", self)
         rb_grass = QtWidgets.QRadioButton("Grass", self)
-        rb_grass.clicked.connect(functools.partial(self._update_drawing_cell_type, core.CellType.GRASS))
+        rb_grass.clicked.connect(functools.partial(self._update_drawing_cell_type, mower.core.map_utils.CellType.GRASS))
         rb_obstacle = QtWidgets.QRadioButton("Obstacle", self)
-        rb_obstacle.clicked.connect(functools.partial(self._update_drawing_cell_type, core.CellType.OBSTACLE))
+        rb_obstacle.clicked.connect(functools.partial(self._update_drawing_cell_type, mower.core.map_utils.CellType.OBSTACLE))
         rb_undefined = QtWidgets.QRadioButton("Undefined", self)
-        rb_undefined.clicked.connect(functools.partial(self._update_drawing_cell_type, core.CellType.UNDEFINED))
+        rb_undefined.clicked.connect(functools.partial(self._update_drawing_cell_type, mower.core.map_utils.CellType.UNDEFINED))
 
         rb_obstacle.setChecked(True)  # Default value in simulation.Map
 
@@ -127,7 +128,7 @@ class ControlWindow(BaseWindow):
         self.global_window.set_time_scale(time_scale)
         self.lbl_simulation_speed.setText(f"Simulation speed: {time_scale}")
 
-    def _update_drawing_cell_type(self, new_type: core.CellType):
+    def _update_drawing_cell_type(self, new_type: mower.core.map_utils.CellType):
         self.local_window.set_pen_cell_type(new_type)
         self.global_window.set_pen_cell_type(new_type)
 

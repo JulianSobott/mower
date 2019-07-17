@@ -38,6 +38,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 import numpy as np
 
+import mower.core.map_utils
 from mower import core
 from mower.core.map_utils import Quad
 from mower.simulation.Logging import logger
@@ -46,17 +47,20 @@ from mower.utils import types
 
 
 class Map(core.Map, Renderable, QtWidgets.QWidget):
-    BACKGROUND_COLOR = 0
-    GRASS_COLOR = 1
-    OBSTACLE_COLOR = 2
-    CELL_OUTLINE_COLOR = 3
+    #: Colors for all :class:`mower.core.Map.CellType` 's
+    color_table = (
+            [
+                QtGui.qRgb(100, 100, 100),  # UNDEFINED
+                QtGui.qRgb(0, 255, 0),  # GRASS
+                QtGui.qRgb(100, 50, 0),  # OBSTACLE
 
-    color_table = [
-        QtGui.qRgb(100, 100, 100),
-        QtGui.qRgb(0, 255, 0),
-        QtGui.qRgb(100, 50, 0),
-        QtGui.qRgb(0, 0, 0)
-    ]
+            ]
+            # filler
+            + [QtGui.qRgb(0, 0, 0) for i in range(3, mower.core.map_utils.CellType.MIN_GRASS.value)]
+
+            # GRASS Heights 20: short - 40: high
+            + [QtGui.qRgb(0, i*3+50, 0) for i in range(mower.core.map_utils.CellType.MIN_GRASS.value,
+                                                       mower.core.map_utils.CellType.MAX_GRASS.value + 1)])
 
     def __init__(self, items: List[Renderable] = None, is_global: bool = False):
         """
@@ -79,7 +83,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.window_size = QtCore.QPoint(500, 600)
 
         #: value of the cells that is set, when they are colored by drawing
-        self.pen_cell_type = core.CellType.OBSTACLE
+        self.pen_cell_type = mower.core.map_utils.CellType.OBSTACLE
         self.pen_drawing_mode = DrawingMode.RECTANGLE
         self.temp_drawing_shape: Union[None, Shape] = None
 
@@ -99,7 +103,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.mouse_move_mode = "DRAW"  # TRANSLATE
 
     def update_rendering(self, passed_time):
-        super().update()
+        super().update(passed_time)
         for item in self.items:
             item.update_rendering(passed_time)
 
@@ -178,7 +182,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
     def cell_type_at(self, x: types.Length, y: types.Length):
         row, col = self.pos2index(x, y)
-        return core.CellType.by_value(self.cells[row][col])
+        return mower.core.map_utils.CellType.by_value(self.cells[row][col])
 
     def draw_quad(self, painter, quad: Quad, x, y):
         qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], quad.data.strides[0], QtGui.QImage.Format_Indexed8)
@@ -208,7 +212,7 @@ class DrawingMode(enum.Enum):
 
 class Shape(Renderable, ABC):
 
-    def __init__(self, cell_type: core.CellType):
+    def __init__(self, cell_type: mower.core.map_utils.CellType):
         self.cell_type = cell_type
 
     def get_array_data(self):
@@ -220,7 +224,7 @@ class Shape(Renderable, ABC):
 
 class Rectangle(Shape):
 
-    def __init__(self, cell_type: core.CellType, x: int, y: int, width: int, height: int):
+    def __init__(self, cell_type: mower.core.map_utils.CellType, x: int, y: int, width: int, height: int):
         super().__init__(cell_type)
         self.x = x
         self.y = y

@@ -22,6 +22,7 @@ from mower.core.map_utils import Quad, DATA_SHAPE
 from mower.utils import Length
 from mower.utils.types import Point
 from mower.utils import Converter
+from mower.core.Logging import logger
 
 
 class Map:
@@ -37,8 +38,8 @@ class Map:
         self.root_quad = Quad(None, (2, 2), Quad)
         self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)
 
-        #: After which time every grass cell 'grows'
-        self._grass_update_time = 100
+        #: After which time (in seconds) every grass cell 'grows'
+        self._grass_update_time = 0.5
         #: Time passed since the last grow
         self._passed_last_grown = 0
 
@@ -61,3 +62,4 @@ class Map:
         self._passed_last_grown += passed_time
         if self._passed_last_grown >= self._grass_update_time:
             self.root_quad.grow_grass_cells()
+            self._passed_last_grown = 0
