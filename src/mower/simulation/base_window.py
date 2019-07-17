@@ -30,6 +30,7 @@ private classes
 """
 import time
 from typing import List
+import traceback
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -86,7 +87,11 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
         else:
             time_passed = (time.time() - self.last_update) * self.time_scale
         for item in self.items:
-            item.update_rendering(time_passed)
+            try:
+                item.update_rendering(time_passed)
+            except Exception as e:
+                traceback.print_exc()
+                raise e
         self.repaint()
 
     def _draw_items(self):

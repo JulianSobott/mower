@@ -10,8 +10,14 @@ public classes
 
 .. autoclass:: Quad
     :members:
+    :undoc-members:
+
+.. autoclass:: CellType
+    :members:
+    :undoc-members:
 
 """
+import enum
 from typing import Union, Type, Tuple
 
 import numpy as np
@@ -233,6 +239,15 @@ class Quad:
                 self.data[quad_idx_y][quad_idx_x].set_data_by_indices(quad_rows, quad_cols, quad_values)
             assert len(rows) == 0 and len(cols) == 0, f"Rows {len(rows)} and cols {cols} must be same size"
 
+    def grow_grass_cells(self):
+        """Increases the value of every grass cell by one"""
+        if self.is_leaf:
+            self.data[CellType.MIN_GRASS.value <= self.data < CellType.MAX_GRASS.value] += 1
+        else:
+            for row in self.data:
+                for quad in row:
+                    quad.grow_grass_cells()
+
     def _pos_to_indices(self, x: int, y: int) -> Tuple[Tuple[int, int], Tuple[int, int]]:
         """
 
@@ -255,3 +270,15 @@ class Quad:
     def __repr__(self):
         return f"Quad(id={id(self)})"
 
+
+class CellType(enum.Enum):
+
+    UNDEFINED = 0
+    GRASS = 20
+    OBSTACLE = 2
+    MIN_GRASS = 20
+    MAX_GRASS = 40
+
+    @classmethod
+    def by_value(cls, val):
+        return {0: cls.UNDEFINED, 1: cls.GRASS, 2: cls.OBSTACLE, 20: cls.MIN_GRASS, 40: cls.MAX_GRASS}[val]
