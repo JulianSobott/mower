@@ -72,13 +72,6 @@ class Quad:
             return self.data[y_idx][x_idx].get_value_at(x % DATA_SHAPE[1], y % DATA_SHAPE[0])
 
     def set_value_at(self, x: int, y: int, value: int) -> None:
-        """
-
-        :param x: position
-        :param y: position
-        :param value:
-        :return:
-        """
         if self.is_leaf:
             self.data[y][x] = value
         else:
@@ -204,8 +197,8 @@ class Quad:
     def set_data_by_indices(self, rows: np.ndarray, cols: np.ndarray, values: Union[int, np.ndarray]):
         """
 
-        :param rows:
-        :param cols:
+        :param rows: numpy array of y positions
+        :param cols: numpy array of x positions (matching thr y positions)
         :param values:
         :return:
         """
@@ -247,6 +240,44 @@ class Quad:
             for row in self.data:
                 for quad in row:
                     quad.grow_grass_cells()
+
+    def get_array_at(self, x: int, y: int, width: int, height: int) -> np.ndarray:
+        """
+
+        :param x: position
+        :param y: position
+        :param width:
+        :param height:
+        :return: An Array filled with the data of a rectangle area with geometry: x, y, width, height
+        """
+        if self.is_leaf:
+            return self.data[y: y + height, x: x + width]
+        else:
+            curr_y = y
+            array_idx_y = 0
+
+            ret_array = np.zeros((height, width), dtype=np.uint8)
+
+            while array_idx_y < height:
+                curr_x = x
+                array_idx_x = 0
+                quad_height = 0
+                while array_idx_x < width:
+                    (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_x, curr_y)
+                    quad_width = min((-self.offset[0] * DATA_SHAPE[1] + (quad_idx_x + 1) * DATA_SHAPE[1]) - curr_x,
+                                     width - array_idx_x)
+                    quad_height = min((-self.offset[1] * DATA_SHAPE[0] + (quad_idx_y + 1) * DATA_SHAPE[0]) - curr_y,
+                                      height - array_idx_y)
+
+                    quad_array = self.data[quad_idx_y][quad_idx_x].get_array_at(data_idx_x, data_idx_y,
+                                                                                quad_width, quad_height)
+                    logger.debug(curr_y + quad_height)
+                    ret_array[array_idx_y:array_idx_y + quad_height, array_idx_x: array_idx_x + quad_width] = quad_array
+                    curr_x += quad_width
+                    array_idx_x += quad_width
+                curr_y += quad_height
+                array_idx_y += quad_height
+            return ret_array
 
     def _pos_to_indices(self, x: int, y: int) -> Tuple[Tuple[int, int], Tuple[int, int]]:
         """

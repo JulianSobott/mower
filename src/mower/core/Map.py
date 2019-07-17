@@ -63,3 +63,43 @@ class Map:
         if self._passed_last_grown >= self._grass_update_time:
             self.root_quad.grow_grass_cells()
             self._passed_last_grown = 0
+
+    def get_value_at(self, x: int, y: int) -> int:
+        """
+
+        :param x: position
+        :param y: position
+        :return: CellType value
+        """
+        return self.root_quad.get_value_at(x, y)
+
+    def set_value_at(self, x: int, y: int, value: int) -> None:
+        """
+
+        :param x: position
+        :param y: position
+        :param value: CellType value
+        :return: None
+        """
+        return self.root_quad.set_value_at(x, y, value)
+
+    def get_array_at(self, x: int, y: int, width: int, height: int) -> np.ndarray:
+        """
+
+        :param x: position
+        :param y: position
+        :param width:
+        :param height:
+        :return: An Array filled with the data of a rectangle area with geometry: x, y, width, height
+        """
+        return self.root_quad.get_array_at(x, y, width, height)
+
+    def set_data_by_array(self, array: np.ndarray, x: int, y: int):
+        """
+
+        :param array: numpy integer array filled with the new data
+        :param x: position on the map. Can be negative
+        :param y: position on the map. Can be negative
+        :return:
+        """
+        return self.root_quad.set_data_by_array(array, x, y)
