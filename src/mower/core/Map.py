@@ -103,3 +103,12 @@ class Map:
         :return:
         """
         return self.root_quad.set_data_by_array(array, x, y)
+
+    def get_data_by_positions(self, y_values: np.ndarray, x_values: np.ndarray) -> np.ndarray:
+        """
+
+        :param y_values: numpy array of y positions
+        :param x_values: numpy array of x positions (matching thr y positions)
+        :return: numpy array with all data
+        """
+        return self.root_quad.get_data_by_positions(y_values, x_values)

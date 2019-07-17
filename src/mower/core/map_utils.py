@@ -232,6 +232,46 @@ class Quad:
                 self.data[quad_idx_y][quad_idx_x].set_data_by_indices(quad_rows, quad_cols, quad_values)
             assert len(rows) == 0 and len(cols) == 0, f"Rows {len(rows)} and cols {cols} must be same size"
 
+    def get_data_by_positions(self, y_values: np.ndarray, x_values: np.ndarray) -> np.ndarray:
+        """
+        TODO
+
+        :param y_values: numpy array of y positions
+        :param x_values: numpy array of x positions (matching thr y positions)
+        :return: numpy array with all data
+        """
+        if self.is_leaf:
+            return self.data[y_values, x_values]
+        else:
+            ret_array = np.ndarray
+            while len(y_values) > 0 and len(x_values) > 0:
+                curr_y = y_values[0]
+                curr_x = x_values[0]
+                (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_x, curr_y)
+                map_indices = []
+                for i in range(len(y_values)):
+                    if ((-self.offset[1] * DATA_SHAPE[0]) + quad_idx_y * DATA_SHAPE[0] <= y_values[i] < (
+                            -self.offset[1] * DATA_SHAPE[0]) + (quad_idx_y + 1) * DATA_SHAPE[0]) and (
+                            (-self.offset[0] * DATA_SHAPE[1]) + quad_idx_x * DATA_SHAPE[1] <= x_values[i] < (
+                            -self.offset[0] * DATA_SHAPE[1]) + (quad_idx_x + 1) * DATA_SHAPE[1]):
+                        map_indices.append(i)
+
+                map_rows = y_values[map_indices]
+                map_cols = x_values[map_indices]
+                y_values = np.delete(y_values, map_indices)
+                x_values = np.delete(x_values, map_indices)
+
+                quad_rows = map_rows - (quad_idx_y - self.offset[1]) * DATA_SHAPE[0]
+                quad_cols = map_cols - (quad_idx_x - self.offset[0]) * DATA_SHAPE[1]
+                if isinstance(values, int):
+                    quad_values = values
+                else:
+                    quad_values = values[quad_rows, quad_cols]
+
+                self.data[quad_idx_y][quad_idx_x].set_data_by_indices(quad_rows, quad_cols, quad_values)
+            assert len(y_values) == 0 and len(x_values) == 0, f"y_values {len(y_values)} and x_values {x_values} " \
+                f"must be same size"
+
     def grow_grass_cells(self):
         """Increases the value of every grass cell by one"""
         if self.is_leaf:
