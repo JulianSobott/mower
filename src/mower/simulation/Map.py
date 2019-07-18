@@ -1,6 +1,6 @@
 """
 :module: mower.simulation.Map
-:synopsis: Class that renders a map and allows editing it
+:synopsis: Class that extends the :class:`mower.core.Map.Map` to render it and allows editing it
 :author: Julian Sobott
 :author:
 
@@ -203,7 +203,7 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.root_quad.grow_to_size(self.max_bounds)
 
 
-class DrawingMode(enum.Enum):
+class DrawingMode(enum.IntEnum):
     FREE_HAND = 0
     RECTANGLE = 1
     LINE = 2

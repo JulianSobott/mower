@@ -327,6 +327,15 @@ class Quad:
     def __repr__(self):
         return f"Quad(id={id(self)})"
 
+    @classmethod
+    def from_file(cls, quad_path: str, parent: 'Quad') -> 'Quad':
+        """Only for leaf quads"""
+        arr = np.load(quad_path)
+        quad = Quad(0, (0, 0), parent=parent)
+        quad.data = arr
+        quad.shape = arr.shape
+        return quad
+
 
 class CellType(enum.Enum):
 

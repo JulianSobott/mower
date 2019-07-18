@@ -63,7 +63,11 @@ class GlobalWindowInterface(simulation.BaseWindowInterface):
         self._window: GlobalWindow
         return self._window.map
 
-    def set_pen_cell_type(self, new_type: mower.core.map_utils.CellType):
+    @property
+    def mower(self):
+        return self._window.mower
+
+    def set_pen_cell_type(self, new_type: core.CellType):
         self._window.global_map.pen_cell_type = new_type
 
     def set_pen_drawing_mode(self, new_mode: 'simulation.DrawingMode'):

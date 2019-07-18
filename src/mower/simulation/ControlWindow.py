@@ -9,7 +9,7 @@ import time
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 import mower.core.map_utils
-from mower import core, simulation
+from mower import core, simulation, utils
 from mower.simulation import BaseWindow
 from mower.simulation.Logging import logger
 from mower.simulation.global_window import GlobalWindowInterface
@@ -100,6 +100,14 @@ class ControlWindow(BaseWindow):
         grp_pen_drawing_mode.setLayout(vbox_cell_type)
         grp_pen_drawing_mode.setGeometry(120, 170, 100, 100)
 
+        btn_save = QtWidgets.QPushButton("Save", self)
+        btn_save.move(20, 290)
+        btn_save.clicked.connect(self._save_data)
+
+        btn_save = QtWidgets.QPushButton("Load", self)
+        btn_save.move(200, 290)
+        btn_save.clicked.connect(self._load_data)
+
     def update(self):
         self.update_fps()
 
@@ -142,3 +150,10 @@ class ControlWindow(BaseWindow):
     def _restart(self):
         self.local_window.restart()
         self.global_window.restart()
+
+    def _save_data(self):
+        utils.data_storage.save_data(self.global_window.map, self.global_window.mower)
+
+    def _load_data(self):
+        full_name = "SAVE_19_07_18_18_43_20"    # TODO: Add widget in window
+        utils.data_storage.load_data(self.global_window.map, self.global_window.mower, full_name)
