@@ -155,5 +155,5 @@ class ControlWindow(BaseWindow):
         utils.data_storage.save_data(self.global_window.map, self.global_window.mower)
 
     def _load_data(self):
-        full_name = "SAVE_19_07_18_18_43_20"    # TODO: Add widget in window
+        full_name = "SAVE_19_07_18_19_44_55"    # TODO: Add widget in window
         utils.data_storage.load_data(self.global_window.map, self.global_window.mower, full_name)

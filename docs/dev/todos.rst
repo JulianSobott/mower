@@ -16,8 +16,9 @@ Top to bottom tasks
         - One in core or separate in sim and real?
     - Define interface between simulation, core and real
     - Map
-        - load map
-        - Save map
+        - load/save mower
+            - position
+            - map
     - Generalize sensor data
 
 - Image recognition
@@ -31,12 +32,13 @@ Top to bottom tasks
 - Simulation
     - Mower can drive
         - Extends the core drive functionality
-    - Controls
-        - Restart
+
     - Add layout to control window
+    - Add controls to Control window
         - clear map
         - fill area
         - line thickness
+        - loading path (input field, more radio buttons with all saves)
 
     - if mower reaches edge increase/add array
     - Change units to fit real values. sizes, velocity, ...
