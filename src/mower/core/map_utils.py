@@ -20,6 +20,7 @@ public classes
 import enum
 from typing import Union, Type, Tuple
 
+import cv2
 import numpy as np
 
 from mower.utils import types
@@ -178,7 +179,7 @@ class Quad:
             while array_idx_y < array.shape[0]:
                 curr_x = x
                 array_idx_x = 0
-                height = 0
+                height = array.shape[0]
                 while array_idx_x < array.shape[1]:
                     (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_x, curr_y)
                     width = min((-self.offset[0] * DATA_SHAPE[1] + (quad_idx_x + 1) * DATA_SHAPE[1]) - curr_x,
@@ -232,45 +233,30 @@ class Quad:
                 self.data[quad_idx_y][quad_idx_x].set_data_by_indices(quad_rows, quad_cols, quad_values)
             assert len(rows) == 0 and len(cols) == 0, f"Rows {len(rows)} and cols {cols} must be same size"
 
-    def get_data_by_positions(self, y_values: np.ndarray, x_values: np.ndarray) -> np.ndarray:
+    def get_quadrilateral_data(self, p_tl: types.Point, p_tr: types.Point, p_br: types.Point, p_bl: types.Point,
+                               dst_width: int, dst_height: int) -> np.ndarray:
         """
-        TODO
+        Allows selecting values in form of a quadrilateral. Most times it will be a rectangle rotated around the z-axis.
 
-        :param y_values: numpy array of y positions
-        :param x_values: numpy array of x positions (matching thr y positions)
-        :return: numpy array with all data
+        :param p_tl: position top left
+        :param p_tr: position top right
+        :param p_br: position bottom right
+        :param p_bl: position bottom left
+        :param dst_width: width of the return array
+        :param dst_height: height of the return array
+        :return: A 2D numpy integer array
         """
-        if self.is_leaf:
-            return self.data[y_values, x_values]
-        else:
-            ret_array = np.ndarray
-            while len(y_values) > 0 and len(x_values) > 0:
-                curr_y = y_values[0]
-                curr_x = x_values[0]
-                (quad_idx_y, quad_idx_x), (data_idx_y, data_idx_x) = self._pos_to_indices(curr_x, curr_y)
-                map_indices = []
-                for i in range(len(y_values)):
-                    if ((-self.offset[1] * DATA_SHAPE[0]) + quad_idx_y * DATA_SHAPE[0] <= y_values[i] < (
-                            -self.offset[1] * DATA_SHAPE[0]) + (quad_idx_y + 1) * DATA_SHAPE[0]) and (
-                            (-self.offset[0] * DATA_SHAPE[1]) + quad_idx_x * DATA_SHAPE[1] <= x_values[i] < (
-                            -self.offset[0] * DATA_SHAPE[1]) + (quad_idx_x + 1) * DATA_SHAPE[1]):
-                        map_indices.append(i)
-
-                map_rows = y_values[map_indices]
-                map_cols = x_values[map_indices]
-                y_values = np.delete(y_values, map_indices)
-                x_values = np.delete(x_values, map_indices)
-
-                quad_rows = map_rows - (quad_idx_y - self.offset[1]) * DATA_SHAPE[0]
-                quad_cols = map_cols - (quad_idx_x - self.offset[0]) * DATA_SHAPE[1]
-                if isinstance(values, int):
-                    quad_values = values
-                else:
-                    quad_values = values[quad_rows, quad_cols]
-
-                self.data[quad_idx_y][quad_idx_x].set_data_by_indices(quad_rows, quad_cols, quad_values)
-            assert len(y_values) == 0 and len(x_values) == 0, f"y_values {len(y_values)} and x_values {x_values} " \
-                f"must be same size"
+        min_x = min(p_tl[0], p_tr[0], p_br[0], p_bl[0])
+        min_y = min(p_tl[0], p_tr[0], p_br[0], p_bl[0])
+        array_width = max(p_tl[0], p_tr[0], p_br[0], p_bl[0]) - min_x
+        array_height = max(p_tl[1], p_tr[1], p_br[1], p_bl[1]) - min_y
+        src_points = np.array([p_tl, p_tr, p_br, p_bl]) - np.array([min_x, min_y])
+        src_data = self.get_array_at(min_x, min_y, array_width, array_height)
+        dst_points = np.array([(0, 0), (dst_width, 0), (dst_width, dst_height), (0, dst_height)])
+        h, mask = cv2.findHomography(src_points, dst_points)
+        ret = cv2.warpPerspective(src_data, h, (dst_width, dst_height))
+        # cv2.imshow("Image", ret)
+        return ret
 
     def grow_grass_cells(self):
         """Increases the value of every grass cell by one"""

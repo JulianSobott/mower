@@ -19,7 +19,7 @@ import skimage.draw
 
 from mower.core import CellType
 from mower.core.map_utils import Quad, DATA_SHAPE
-from mower.utils import Length
+from mower.utils import Length, types
 from mower.utils.types import Point
 from mower.utils import Converter
 from mower.core.Logging import logger
@@ -104,14 +104,20 @@ class Map:
         """
         return self.root_quad.set_data_by_array(array, x, y)
 
-    def get_data_by_positions(self, y_values: np.ndarray, x_values: np.ndarray) -> np.ndarray:
+    def get_quadrilateral_data(self, p_tl: types.Point, p_tr: types.Point, p_br: types.Point, p_bl: types.Point,
+                               dst_width: int, dst_height: int) -> np.ndarray:
         """
+        Allows selecting values in form of a quadrilateral. Most times it will be a rectangle rotated around the z-axis.
 
-        :param y_values: numpy array of y positions
-        :param x_values: numpy array of x positions (matching thr y positions)
-        :return: numpy array with all data
+        :param p_tl: position top left
+        :param p_tr: position top right
+        :param p_br: position bottom right
+        :param p_bl: position bottom left
+        :param dst_width: width of the return array
+        :param dst_height: height of the return array
+        :return: A 2D numpy integer array
         """
-        return self.root_quad.get_data_by_positions(y_values, x_values)
+        return self.root_quad.get_quadrilateral_data(p_tl, p_tr, p_br, p_bl, dst_width, dst_height)
 
     def reset(self):
         """
