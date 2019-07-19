@@ -54,7 +54,7 @@ import datetime
 import numpy as np
 import json
 
-from mower import simulation, core
+# from mower import simulation, core
 
 PROJECT_PATH = os.path.abspath(os.path.join(__file__, "../../../.."))
 CODE_PATH = os.path.join(PROJECT_PATH, "src/mower/")
@@ -87,6 +87,7 @@ def save_data(map_obj: 'core.Map', mower_obj: 'core.Mower', name: str = "SAVE_")
                  },
                  "mower": {}
                  }
+    from mower import simulation
     if isinstance(map_obj, simulation.Map):
         map_obj: simulation.Map
         t = map_obj.transformation
@@ -139,6 +140,8 @@ def _load_meta_data(abs_folder_path: str) -> dict:
 
 
 def _load_map(map_obj: 'core.Map', meta_data: dict, save_path: str) -> None:
+    from mower import core
+    from mower import simulation
     map_shape = meta_data["global_map"]["shape"]
     map_obj.root_quad.data = np.full(map_shape, None, dtype=core.map_utils.Quad)
     map_obj.root_quad.offset = meta_data["global_map"]["offset"]

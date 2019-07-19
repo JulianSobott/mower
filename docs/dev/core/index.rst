@@ -4,3 +4,4 @@ Core
 .. toctree::
 
     map
+    mower

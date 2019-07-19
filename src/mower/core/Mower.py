@@ -1,13 +1,30 @@
 """
-@author: Julian
-@brief:
-@description:
+:module: mower.simulation.Mower
+:synopsis: Core class to control the Mower
+:author: Julian Sobott
+:author:
+
+::
+
     width
     _____
    |  ^  |
    |     |   length
    |     |
     -----
+    
+public classes
+-----------------
+
+.. autoclass:: Mower
+    :members:
+    :undoc-members:
+    :private-members:
+    
+.. autoclass:: SensorData
+    :members:
+    :undoc-members:
+
 """
 from typing import Tuple
 
@@ -56,69 +73,97 @@ class Mower:
         self.look_direction_deg: int = 150
         self.look_direction_rad: float = math.radians(self.look_direction_deg)
 
-    def drive(self):
-        distance_to_drive = 0
-        deg_to_turn = 0
-        is_on = True
-        while is_on:
-            # calculate way
+        #: Output signal for left motor
+        self.left_motor_speed: int = 0
+        self.left_motor_direction: types.MotorDirection = types.MOTOR_DIRECTION_FORWARD
 
-            if distance_to_drive > 0:
-                pass
-                # keep moving
-            else:
-                pass
-                # stop wheels
+        #: Output signal for right motor
+        self.right_motor_speed: int = 0
+        self.right_motor_direction: types.MotorDirection = types.MOTOR_DIRECTION_FORWARD
 
-            if deg_to_turn > 0:
-                pass
-                # keep turning
-            else:
-                pass
-                # stop wheels
+    def stop_motors(self) -> None:
+        """
+        Stops both motors
 
-    def rotate_wheels(self, time_left, time_right):
-        """Implement this function in child class
-        WHEEL can be self.LEFT_WHEEL or self.RIGHT_WHEEL"""
+        :return:
+        """
+        self.set_motors(0, types.MOTOR_DIRECTION_FORWARD, 0, types.MOTOR_DIRECTION_FORWARD)
+
+    def forward(self, speed: int) -> None:
+        """
+        Sets both motors to run forwards at speed.
+
+        :param speed: TODO: Description of speed needed
+        """
+        self.set_motors(speed, types.MOTOR_DIRECTION_FORWARD, speed, types.MOTOR_DIRECTION_FORWARD)
+
+    def reverse(self, speed: int) -> None:
+        """
+        Sets both motors to run in reverse at speed.
+
+        :param speed: TODO: Description of speed needed
+        """
+        self.set_motors(speed, types.MOTOR_DIRECTION_BACKWARD, speed, types.MOTOR_DIRECTION_BACKWARD)
+
+    def turn_forwards(self, left_speed: int, right_speed: int) -> None:
+        """
+        Moves forward in an arc by setting different speeds.
+
+        :param left_speed:
+        :param right_speed:
+        """
+        self.set_motors(left_speed, types.MOTOR_DIRECTION_FORWARD, right_speed, types.MOTOR_DIRECTION_FORWARD)
+
+    def turn_backwards(self, left_speed: int, right_speed: int) -> None:
+        """
+        Moves forward in an arc by setting different speeds.
+
+        :param left_speed:
+        :param right_speed:
+        """
+        self.set_motors(left_speed, types.MOTOR_DIRECTION_BACKWARD, right_speed, types.MOTOR_DIRECTION_BACKWARD)
+
+    def set_motors(self, left_speed: int, left_direction: types.MotorDirection,
+                   right_speed: int, right_direction: types.MotorDirection):
+        """
+        Full Control over both motors. All other movement functions call this function.
+
+        :param left_speed:
+        :param left_direction:
+        :param right_speed:
+        :param right_direction:
+        :return:
+        """
+        self.left_motor_speed = left_speed
+        self.left_motor_direction = left_direction
+        self.right_motor_speed = right_speed
+        self.right_motor_direction = right_direction
+
+    def _drive(self) -> None:
+        """
+        Drives based on the :attr:`left_motor_speed`, :attr:`left_motor_direction`,
+        :attr:`right_motor_speed`, :attr:`right_motor_direction`,
+
+        :return:
+        """
         raise NotImplementedError
 
     def get_sensor_data(self) -> 'SensorData':
-        """Implement this function in child class"""
+        """
+        Collects all data from all sensors.
+
+        :return: A :class:`SensorData` object, that stores all data.
+        """
         raise NotImplementedError
 
     def update(self, delta_time: float):
         """Takes all data calculates next actions and execute them.
         Way algorithm could go here?"""
-        # data = self.get_sensor_data()
-        # self.update_map(data)
-        distance = Length(self.VELOCITY_MS * delta_time, Length.METER)
-        self.last_local_pos = self.local_pos.copy()
-        self.drive_forward(distance)
+        data = self.get_sensor_data()
+        self.update_map(data)
 
     def update_map(self, data: 'SensorData'):
         pass
-
-    def drive_forward(self, distance: Length) -> types.PointL:
-        """
-
-        :param distance:
-        :return: [d_x, d_y] The distances that were driven in X and Y direction
-        """
-        # TODO self.rotate_wheels()
-        d_y = math.sin(self.look_direction_rad - math.pi/2) * distance
-        d_x = math.cos(self.look_direction_rad - math.pi/2) * distance
-        self.local_pos[0] += d_x
-        self.local_pos[1] += d_y
-        return [d_x, d_y]
-
-    def drive_forward_till_obstacle(self):
-        # Necessary?
-        pass
-
-    def turn(self, deg):
-        pass
-        # TODO: implement
-        # Calls rotate_wheel()
 
     def _load_map(self) -> 'core.Map':
         """If a map is saved load it else create a new one."""
@@ -133,3 +178,4 @@ class SensorData:
 
     def __repr__(self):
         return f"SensorData(front_underground = {self.front_underground},)"
+

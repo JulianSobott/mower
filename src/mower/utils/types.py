@@ -21,3 +21,8 @@ NORTH = Direction("NORTH")
 EAST = Direction("EAST")
 SOUTH = Direction("SOUTH")
 WEST = Direction("WEST")
+
+MotorDirection = NewType("MotorDirection", str)
+
+MOTOR_DIRECTION_FORWARD = MotorDirection("FORWARD")
+MOTOR_DIRECTION_BACKWARD = MotorDirection("BACKWARD")
