@@ -27,7 +27,7 @@ class Mower:
     RIGHT_WHEEL = 1
 
     #: m/s
-    VELOCITY_MS = 0.001
+    VELOCITY_MS = 0.5
 
     WIDTH = Length(0.3, Length.METER)
     LENGTH = Length(0.5, Length.METER)
@@ -49,7 +49,6 @@ class Mower:
 
         #: Position of the last call circle
         self.last_local_pos: types.PointL = self.local_pos.copy()
-        logger.debug(f"{id(self.local_pos)}, {id(self.last_local_pos)}")
 
         #: The direction, the front of the mower faces. The int is a compass number
         #: E.g. North = 0, East = 90, South = 180, West = 270
@@ -90,8 +89,8 @@ class Mower:
     def update(self, delta_time: float):
         """Takes all data calculates next actions and execute them.
         Way algorithm could go here?"""
-        data = self.get_sensor_data()
-        self.update_map(data)
+        # data = self.get_sensor_data()
+        # self.update_map(data)
         distance = Length(self.VELOCITY_MS * delta_time, Length.METER)
         self.last_local_pos = self.local_pos.copy()
         self.drive_forward(distance)

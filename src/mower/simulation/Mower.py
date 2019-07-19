@@ -82,6 +82,7 @@ class Mower(core.Mower, Renderable):
         self.global_pos[1] += d_y
 
     def get_sensor_data(self):
+        return
         underground = self.global_map.cell_type_at(*self.global_pos)
         return core.SensorData(underground)
 

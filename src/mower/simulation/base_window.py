@@ -82,12 +82,12 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
     def update_items(self):
         """Update all items. The time_passed is may be affected by a scale factor to slow down or fasten the
         simulation"""
+        now = time.time()
         if self.is_paused:
             time_passed = 0
         else:
-            now = time.time()
             time_passed = (now - self.last_update) * self.time_scale
-            self.last_update = now
+        self.last_update = now
         for item in self.items:
             try:
                 item.update_rendering(time_passed)
