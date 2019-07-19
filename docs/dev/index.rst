@@ -27,6 +27,20 @@ Project structure
     mower
     |   README.md
     |
+    |___data
+    |   |   config
+    |   |
+    |   |____saves
+    |   |    |
+    |   |    |____[name]_[date]
+    |   |    |    |   meta_data.json
+    |   |    |    |
+    |   |    |    |____global_map
+    |   |    |    |
+    |   |    |    |----mower
+    |   |    |    |    |
+    |   |    |    |    |____local_map
+    |
     |___docs
     |   |
     |   |___build

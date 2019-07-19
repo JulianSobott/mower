@@ -22,17 +22,21 @@ from mower.utils import types
 class Mower:
     """Abstract class"""
 
+    #: Constants
     LEFT_WHEEL = 0
     RIGHT_WHEEL = 1
 
-    VELOCITY_MS = 0.001  # m/s
+    #: m/s
+    VELOCITY_MS = 0.001
 
     WIDTH = Length(0.3, Length.METER)
     LENGTH = Length(0.5, Length.METER)
     HEIGHT = Length(0.3, Length.METER)
 
     WHEEL_RADIUS = Length(7, Length.CENTIMETER)
-    WHEEL_DISTANCE = WIDTH  # distance from 1 wheel to the other. measured from both centers
+
+    #: Distance from one wheel to the other. Measured from both centers
+    WHEEL_DISTANCE = WIDTH
 
     def __init__(self):
         #: Map that contains all data that the mower is aware of
@@ -84,7 +88,7 @@ class Mower:
         raise NotImplementedError
 
     def update(self, delta_time: float):
-        """Takes all data calculates next actions and execute them
+        """Takes all data calculates next actions and execute them.
         Way algorithm could go here?"""
         data = self.get_sensor_data()
         self.update_map(data)
@@ -93,20 +97,13 @@ class Mower:
         self.drive_forward(distance)
 
     def update_map(self, data: 'SensorData'):
-        #self.local_map.add_line_data((10, 10), (200, 200), 10, self.local_map.cells, 2)
-        # self.local_map.add_line_data((200, 0), (0, 200), 4, self.local_map.cells, 2)
-        # logger.debug(id(self.local_map.cells))
-        # logger.debug(f"{self.last_local_pos}, {self.local_pos}")
-        row_start, col_start = self.local_map.pos2index(*self.last_local_pos)
-        row_end, col_end = self.local_map.pos2index(*self.local_pos)
-        self.local_map.add_line_data((col_start, row_start), (col_end, row_end), self.WIDTH.pixel(),
-                                     self.local_map.cells, data.cell_type.value)
+        pass
 
     def drive_forward(self, distance: Length) -> types.PointL:
         """
 
         :param distance:
-        :return: [d_x, d_y] The distances that where driven in X and Y direction
+        :return: [d_x, d_y] The distances that were driven in X and Y direction
         """
         # TODO self.rotate_wheels()
         d_y = math.sin(self.look_direction_rad - math.pi/2) * distance
@@ -131,8 +128,9 @@ class Mower:
 
 class SensorData:
 
-    def __init__(self, underground: 'core.CellType'):
-        self.cell_type = underground
+    def __init__(self, front_underground):
+        #: Underground data, that is directly in front of the mower
+        self.front_underground = front_underground
 
     def __repr__(self):
-        return f"SensorData(underground = {self.cell_type},)"
+        return f"SensorData(front_underground = {self.front_underground},)"

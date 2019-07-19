@@ -178,10 +178,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.transformation.scale(1 + scale_delta, 1 + scale_delta)
         self.updated_transformation()
 
-    def cell_type_at(self, x: types.Length, y: types.Length):
-        row, col = self.pos2index(x, y)
-        return mower.core.map_utils.CellType.by_value(self.cells[row][col])
-
     def draw_quad(self, painter, quad: Quad, x, y):
         qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], quad.data.strides[0], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)

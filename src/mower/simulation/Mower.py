@@ -36,7 +36,7 @@ class Mower(core.Mower, Renderable):
 
     def update_rendering(self, passed_time: float):
         """Periodically updating the state of the mower."""
-        # super().update(passed_time)
+        super().update(passed_time)
 
     def draw(self, painter: Painting.Painter, is_global: bool = False) -> None:
         """
@@ -90,8 +90,3 @@ class Mower(core.Mower, Renderable):
 
     def update_map(self, data):
         super().update_map(data)
-
-        # row_start, col_start = self.local_map.pos2index(*self.last_local_pos)
-        # row_end, col_end = self.local_map.pos2index(*self.local_pos)
-        # self.local_map.add_line_data((col_start, row_start), (col_end, row_end), self.WIDTH.pixel(),
-        #                              self.global_map.cells, 1)
