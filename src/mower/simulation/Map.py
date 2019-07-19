@@ -41,6 +41,7 @@ import numpy as np
 import mower.core.map_utils
 from mower import core
 from mower.core.map_utils import Quad
+from mower.simulation import paths
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable, Painter
 from mower.utils import types
@@ -99,6 +100,10 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
         self.transformation = QtGui.QTransform()
         self.mouse_move_mode = "DRAW"  # TRANSLATE
+
+        #: Debug image
+        self._debug_grid_img = QtGui.QImage(paths.get_asset_path("grid_transparent.png"))
+        self._debug_render_grid = True
 
     def update_rendering(self, passed_time):
         super().update(passed_time)
@@ -181,8 +186,13 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
     def draw_quad(self, painter, quad: Quad, x, y):
         qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], quad.data.strides[0], QtGui.QImage.Format_Indexed8)
         qi.setColorTable(self.color_table)
-
         painter.drawImage(x, y, qi)
+
+        if self._debug_render_grid:
+            qi = self._debug_grid_img
+            qi = qi.scaledToHeight(quad.shape[1])
+            qi = qi.scaledToWidth(quad.shape[0])
+            painter.drawImage(x, y, qi)
         # pix_map = QtGui.QPixmap.fromImage(qi)
         # painter.drawPixmap(x, y, pix_map)
 
