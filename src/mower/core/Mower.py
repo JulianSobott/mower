@@ -23,6 +23,7 @@ This procedure is executed periodically multiple times per seconds in :meth:`Mow
 3. Calculate next step(s)
 4. Set parameters of the motors
 5. Output the motor parameters
+
     
 public classes
 -----------------
