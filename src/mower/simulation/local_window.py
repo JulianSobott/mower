@@ -45,6 +45,7 @@ class LocalWindow(simulation.BaseWindow):
 
     def restart(self):
         self.local_map.reset()
+        self.mower.reset()
 
 
 class LocalWindowInterface(simulation.BaseWindowInterface):

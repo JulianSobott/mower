@@ -206,6 +206,13 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
         self.root_quad.grow_to_size(self.max_bounds)
 
+    def reset(self):
+        """
+
+        :return:
+        """
+        self.__init__(self.items, self.is_global)
+
 
 class DrawingMode(enum.IntEnum):
     FREE_HAND = 0

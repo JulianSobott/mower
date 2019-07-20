@@ -36,7 +36,7 @@ class Map:
 
     def __init__(self):
         self.root_quad = Quad(None, (2, 2), Quad)
-        self.reset()
+        self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)
 
         #: After which time (in seconds) every grass cell 'grows'
         self._grass_update_time = 0.5
@@ -124,5 +124,6 @@ class Map:
 
         :return:
         """
-        self.root_quad = Quad(None, (2, 2), Quad)
-        self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)
+        self.__init__()
+        # self.root_quad = Quad(None, (2, 2), Quad)
+        # self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)

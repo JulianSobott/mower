@@ -74,8 +74,17 @@ class Mower(core.Mower, Renderable):
     def get_sensor_data(self):
         return
 
+    def _update_position(self, delta_time: float) -> types.PointL:
+        dx, dy = super()._update_position(delta_time)
+        self.global_pos[0] += dx
+        self.global_pos[1] += dy
+        return [dx, dy]
+
     def _load_map(self) -> 'simulation.Map':
         return simulation.Map()
 
     def _output_motors_data(self) -> None:
         pass
+
+    def reset(self):
+        self.__init__()

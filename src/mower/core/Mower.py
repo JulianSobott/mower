@@ -37,6 +37,7 @@ public classes
     :undoc-members:
 
 """
+from dataclasses import dataclass
 from typing import Tuple
 
 import math
@@ -184,29 +185,43 @@ class Mower:
     def update(self, delta_time: float):
         """Takes all data calculates next actions and execute them.
         Way algorithm could go here?"""
+        self._update_position(delta_time)
         data = self.get_sensor_data()
         self.update_map(data)
 
     def update_map(self, data: 'SensorData'):
         pass
 
-    def _update_position(self, delta_time: float) -> None:
+    def _update_position(self, delta_time: float) -> types.PointL:
         """Update the position based on the delta time and the motors parameters.
 
         :param delta_time: Time passed since last update.
+        :return: delta X, delta Y
         """
+        # TODO: calculate dx, dy
+        dx = Length(delta_time, Length.METER)
+        dy = Length(delta_time, Length.METER)
+        self.local_pos[0] += dx
+        self.local_pos[1] += dy
+        return [dx, dy]
 
     def _load_map(self) -> 'core.Map':
         """If a map is saved load it else create a new one."""
         return core.Map()
 
+    def reset(self):
+        """
 
+        :return:
+        """
+        self.__init__()
+
+
+@dataclass
 class SensorData:
+    """
+    """
 
-    def __init__(self, front_underground):
-        #: Underground data, that is directly in front of the mower
-        self.front_underground = front_underground
-
-    def __repr__(self):
-        return f"SensorData(front_underground = {self.front_underground},)"
+    #: The underground in front of the mower
+    front_underground: types.Underground
 

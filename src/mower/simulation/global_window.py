@@ -50,6 +50,7 @@ class GlobalWindow(simulation.BaseWindow):
 
     def restart(self):
         self.global_map.reset()
+        self.mower.reset()
 
 
 class GlobalWindowInterface(simulation.BaseWindowInterface):

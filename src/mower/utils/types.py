@@ -6,7 +6,7 @@
 
 
 """
-from typing import Tuple, List, NewType
+from typing import Tuple, List, NewType, Any
 
 from mower.utils import Length
 
@@ -39,3 +39,8 @@ Side = NewType("Side", str)
 
 LEFT_SIDE = Side("LEFT")
 RIGHT_SIDE = Side("RIGHT")
+
+
+"""Underground"""
+Underground = NewType("Underground", Any)   # TODO
+
