@@ -12,6 +12,17 @@
    |     |   length
    |     |
     -----
+
+Driving procedure:
+----------------------
+
+This procedure is executed periodically multiple times per seconds in :meth:`Mower.update()`.
+
+1. Get Sensor data
+2. Update map, based on sensor data
+3. Calculate next step(s)
+4. Set parameters of the motors
+5. Output the motor parameters
     
 public classes
 -----------------
@@ -73,11 +84,11 @@ class Mower:
         self.look_direction_deg: int = 150
         self.look_direction_rad: float = math.radians(self.look_direction_deg)
 
-        #: Output signal for left motor
+        #: Output signal for left motor. Range: 0 <= speed <= 100
         self.left_motor_speed: int = 0
         self.left_motor_direction: types.MotorDirection = types.MOTOR_DIRECTION_FORWARD
 
-        #: Output signal for right motor
+        #: Output signal for right motor. Range: 0 <= speed <= 100
         self.right_motor_speed: int = 0
         self.right_motor_direction: types.MotorDirection = types.MOTOR_DIRECTION_FORWARD
 
@@ -89,15 +100,15 @@ class Mower:
         """
         self.set_motors(0, types.MOTOR_DIRECTION_FORWARD, 0, types.MOTOR_DIRECTION_FORWARD)
 
-    def forward(self, speed: int) -> None:
+    def forward(self, speed: int = 100) -> None:
         """
         Sets both motors to run forwards at speed.
 
-        :param speed: TODO: Description of speed needed
+        :param speed: 0: stop <= speed <= 100: max speed
         """
         self.set_motors(speed, types.MOTOR_DIRECTION_FORWARD, speed, types.MOTOR_DIRECTION_FORWARD)
 
-    def reverse(self, speed: int) -> None:
+    def reverse(self, speed: int = 100) -> None:
         """
         Sets both motors to run in reverse at speed.
 
@@ -134,15 +145,17 @@ class Mower:
         :param right_direction:
         :return:
         """
+        assert 0 <= left_speed <= 100, "Left speed value must be in range: 0 <= speed <= 100"
+        assert 0 <= right_speed <= 100, "Right speed value must be in range: 0 <= speed <= 100"
         self.left_motor_speed = left_speed
         self.left_motor_direction = left_direction
         self.right_motor_speed = right_speed
         self.right_motor_direction = right_direction
 
-    def _drive(self) -> None:
+    def _output_motors_data(self) -> None:
         """
         Drives based on the :attr:`left_motor_speed`, :attr:`left_motor_direction`,
-        :attr:`right_motor_speed`, :attr:`right_motor_direction`,
+        :attr:`right_motor_speed`, :attr:`right_motor_direction`. Only needed in :mod:`mower.real`
 
         :return:
         """
@@ -164,6 +177,14 @@ class Mower:
 
     def update_map(self, data: 'SensorData'):
         pass
+
+    def _update_position(self, delta_time: float) -> None:
+        """Update the position based on the delta time and the motors parameters.
+
+        :param delta_time: Time passed since last update.
+        """
+
+
 
     def _load_map(self) -> 'core.Map':
         """If a map is saved load it else create a new one."""

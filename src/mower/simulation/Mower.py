@@ -20,6 +20,7 @@ from mower.simulation import paths, Painting
 
 
 class Mower(core.Mower, Renderable):
+
     MOWER_COLOR = QtGui.QColor(150, 120, 150)
 
     def __init__(self):
@@ -35,7 +36,8 @@ class Mower(core.Mower, Renderable):
         self.img_mower = QtGui.QImage(paths.get_asset_path("mower.png"))
 
     def update_rendering(self, passed_time: float):
-        """Periodically updating the state of the mower."""
+        """Periodically updating the state of the mower. """
+
         super().update(passed_time)
 
     def draw(self, painter: Painting.Painter, is_global: bool = False) -> None:
@@ -69,25 +71,11 @@ class Mower(core.Mower, Renderable):
 
         painter.resetTransform()
 
-    def rotate_wheel(self, wheel, deg):
-        pass
-
-    def rotate_wheels(self, time_left, time_right):
-        pass
-
-    def drive_forward(self, distance: Length):
-        d_x, d_y = super().drive_forward(distance)
-
-        self.global_pos[0] += d_x
-        self.global_pos[1] += d_y
-
     def get_sensor_data(self):
         return
-        underground = self.global_map.cell_type_at(*self.global_pos)
-        return core.SensorData(underground)
 
     def _load_map(self) -> 'simulation.Map':
         return simulation.Map()
 
-    def update_map(self, data):
-        super().update_map(data)
+    def _output_motors_data(self) -> None:
+        pass
