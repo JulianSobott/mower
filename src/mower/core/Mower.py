@@ -86,11 +86,11 @@ class Mower:
 
         #: Output signal for left motor. Range: 0 <= speed <= 100
         self.left_motor_speed: int = 0
-        self.left_motor_direction: types.MotorDirection = types.MOTOR_DIRECTION_FORWARD
+        self.left_motor_direction: types.Direction_2D = types.DIRECTION_FORWARD
 
         #: Output signal for right motor. Range: 0 <= speed <= 100
         self.right_motor_speed: int = 0
-        self.right_motor_direction: types.MotorDirection = types.MOTOR_DIRECTION_FORWARD
+        self.right_motor_direction: types.Direction_2D = types.DIRECTION_FORWARD
 
     def stop_motors(self) -> None:
         """
@@ -98,44 +98,58 @@ class Mower:
 
         :return:
         """
-        self.set_motors(0, types.MOTOR_DIRECTION_FORWARD, 0, types.MOTOR_DIRECTION_FORWARD)
+        self.set_motors(0, types.DIRECTION_FORWARD, 0, types.DIRECTION_FORWARD)
 
     def forward(self, speed: int = 100) -> None:
         """
-        Sets both motors to run forwards at speed.
+        Drive forward with speed.
 
         :param speed: 0: stop <= speed <= 100: max speed
         """
-        self.set_motors(speed, types.MOTOR_DIRECTION_FORWARD, speed, types.MOTOR_DIRECTION_FORWARD)
+        self.set_motors(speed, types.DIRECTION_FORWARD, speed, types.DIRECTION_FORWARD)
 
-    def reverse(self, speed: int = 100) -> None:
+    def backward(self, speed: int = 100) -> None:
         """
-        Sets both motors to run in reverse at speed.
+        Drive backward with speed.
 
-        :param speed: TODO: Description of speed needed
+        :param speed: 0: stop <= speed <= 100: max speed
         """
-        self.set_motors(speed, types.MOTOR_DIRECTION_BACKWARD, speed, types.MOTOR_DIRECTION_BACKWARD)
+        self.set_motors(speed, types.DIRECTION_BACKWARD, speed, types.DIRECTION_BACKWARD)
 
-    def turn_forwards(self, left_speed: int, right_speed: int) -> None:
+    def turn_around_center(self, deg: int, clockwise: bool = True) -> None:
         """
-        Moves forward in an arc by setting different speeds.
+        Turns the given amount. The position of the center stays the same.
 
-        :param left_speed:
-        :param right_speed:
+        :param deg: Angular to turn in degree. 0 < deg < 360
+        :param clockwise: In which direction to to turn
         """
-        self.set_motors(left_speed, types.MOTOR_DIRECTION_FORWARD, right_speed, types.MOTOR_DIRECTION_FORWARD)
+        assert 0 < deg < 360, f"Value is not in range: 0 < {deg} < 360"
+        raise NotImplementedError   # TODO
 
-    def turn_backwards(self, left_speed: int, right_speed: int) -> None:
+    def turn_around_wheel(self, deg: int, wheel: types.Side, clockwise: bool = True):
         """
-        Moves forward in an arc by setting different speeds.
+        Turns the given amount around the given wheel. So the position of the passed wheel stays the same.
 
-        :param left_speed:
-        :param right_speed:
+        :param deg: Angular to turn in degree. 0 < deg < 360
+        :param wheel: Wheel that is fixed
+        :param clockwise: In which direction to to turn
+        :return:
         """
-        self.set_motors(left_speed, types.MOTOR_DIRECTION_BACKWARD, right_speed, types.MOTOR_DIRECTION_BACKWARD)
+        assert 0 < deg < 360, f"Value is not in range: 0 < {deg} < 360"
+        raise NotImplementedError  # TODO
 
-    def set_motors(self, left_speed: int, left_direction: types.MotorDirection,
-                   right_speed: int, right_direction: types.MotorDirection):
+    def drive_arc(self, radius: Length, direction: types.Direction_2D, side: types.Side):
+        """
+        Drives an arc in the given radius.
+
+        :param radius: Radius measured from the center of the mower.
+        :param direction: Drive forward or backward
+        :param side: Drive to the left or to the right
+        :return:
+        """
+
+    def set_motors(self, left_speed: int, left_direction: types.Direction_2D,
+                   right_speed: int, right_direction: types.Direction_2D):
         """
         Full Control over both motors. All other movement functions call this function.
 
@@ -154,10 +168,8 @@ class Mower:
 
     def _output_motors_data(self) -> None:
         """
-        Drives based on the :attr:`left_motor_speed`, :attr:`left_motor_direction`,
-        :attr:`right_motor_speed`, :attr:`right_motor_direction`. Only needed in :mod:`mower.real`
-
-        :return:
+        Outputs all motor parameters to the motors: :attr:`left_motor_speed`, :attr:`left_motor_direction`,
+        :attr:`right_motor_speed`, :attr:`right_motor_direction`. Only needed in :mod:`mower.real`.
         """
         raise NotImplementedError
 
@@ -183,8 +195,6 @@ class Mower:
 
         :param delta_time: Time passed since last update.
         """
-
-
 
     def _load_map(self) -> 'core.Map':
         """If a map is saved load it else create a new one."""

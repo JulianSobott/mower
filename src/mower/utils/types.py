@@ -10,19 +10,32 @@ from typing import Tuple, List, NewType
 
 from mower.utils import Length
 
+
+"""Points"""
 #: x, y
 Point = Tuple[int, int]
 #: 0 = x, 1 = y
 PointL = List[Length]
 
-Direction = NewType("Direction", str)
 
-NORTH = Direction("NORTH")
-EAST = Direction("EAST")
-SOUTH = Direction("SOUTH")
-WEST = Direction("WEST")
+"""Direction 4D"""
+Direction_4D = NewType("Direction_4D", str)
 
-MotorDirection = NewType("MotorDirection", str)
+NORTH = Direction_4D("NORTH")
+EAST = Direction_4D("EAST")
+SOUTH = Direction_4D("SOUTH")
+WEST = Direction_4D("WEST")
 
-MOTOR_DIRECTION_FORWARD = MotorDirection("FORWARD")
-MOTOR_DIRECTION_BACKWARD = MotorDirection("BACKWARD")
+
+"""Direction 2D"""
+Direction_2D = NewType("Direction_2D", str)
+
+DIRECTION_FORWARD = Direction_2D("FORWARD")
+DIRECTION_BACKWARD = Direction_2D("BACKWARD")
+
+
+"""Side"""
+Side = NewType("Side", str)
+
+LEFT_SIDE = Side("LEFT")
+RIGHT_SIDE = Side("RIGHT")

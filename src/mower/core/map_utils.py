@@ -80,7 +80,7 @@ class Quad:
             y_idx = y // DATA_SHAPE[0] + self.offset[1]
             self.data[y_idx][x_idx].set_value_at(x % DATA_SHAPE[1], y % DATA_SHAPE[0], value)
 
-    def grow(self, amount: int, direction: types.Direction, init_value, shape=None, create_quads=False) -> None:
+    def grow(self, amount: int, direction: types.Direction_4D, init_value, shape=None, create_quads=False) -> None:
         """
         Increases the size of the data array and fills the new fields with `init_value`.
         :param amount: Amount of rows/columns are added
