@@ -53,11 +53,19 @@ class Mower(core.Mower, Renderable):
         else:
             rect = QRect(self.local_pos[0].pixel(), self.local_pos[1].pixel(), self.WIDTH.pixel(), self.LENGTH.pixel())
 
+        r_x = self.global_pos[0] - self.WIDTH
+        r_y = self.global_pos[1] - self.LENGTH / 2
+
+        world_rx = r_x * math.cos(self.look_direction_rad) - math.sin(self.look_direction_rad) * r_y
+        world_ry = r_x * math.sin(self.look_direction_rad) + math.cos(self.look_direction_rad) * r_y
+
+        #logger.debug(f"{world_rx }, {world_ry}")
+
         transform = QtGui.QTransform()
         center_point = rect.center()
 
         # Sets the center as 0;0 coordinate
-        transform.translate((-self.WIDTH / 2).pixel(), (-self.LENGTH / 2).pixel())
+        transform.translate((-self.WIDTH / 2).pixel(), (-self.LENGTH).pixel())
 
         # Rotate around the center
         transform.translate(center_point.x(), center_point.y())

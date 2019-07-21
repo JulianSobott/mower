@@ -83,7 +83,7 @@ class Mower:
         #: The direction, the front of the mower faces. The int is a compass number
         #: E.g. North = 0, East = 90, South = 180, West = 270
         #: Value Range inclusive: 0 - 359
-        self.look_direction_deg: int = 150
+        self.look_direction_deg: int = 90
         self.look_direction_rad: float = math.radians(self.look_direction_deg)
 
         #: Output signal for left motor. Range: 0 <= speed <= 100
@@ -189,6 +189,7 @@ class Mower:
         self._update_position(delta_time)
         data = self.get_sensor_data()
         self.update_map(data)
+        self.set_motors(5, types.DIRECTION_FORWARD, 0, types.DIRECTION_FORWARD)
 
     def update_map(self, data: 'SensorData'):
         pass
@@ -199,9 +200,55 @@ class Mower:
         :param delta_time: Time passed since last update.
         :return: delta X, delta Y
         """
-        # TODO: calculate dx, dy
-        dx = Length(delta_time, Length.METER)
-        dy = Length(delta_time, Length.METER)
+
+        w = self.WIDTH.pixel()
+        s_left = delta_time * self.left_motor_speed
+        s_right = delta_time * self.right_motor_speed
+        s_left = 2 * math.pi * self.WIDTH.pixel() / 4
+        if s_left > s_right:
+            alpha = (180 * (s_left - s_right)) / (math.pi * w)  # TODO: proper length
+            r1 = (s_right * 180) / (math.pi * alpha)
+            obj_dx = (r1 + w/2) + (r1 + w / 2) * math.cos(math.radians(180 - alpha))
+            #    offset                new                           window coordinate system
+            obj_dy = (r1 + w / 2) * math.sin(math.radians(180 - alpha)) * (-1)
+            world_dx = math.cos(self.look_direction_rad) * obj_dx - math.sin(self.look_direction_rad) * obj_dy
+            world_dy = math.sin(self.look_direction_rad) * obj_dx + math.cos(self.look_direction_rad) * obj_dy
+
+            # r_x = self.WIDTH.pixel() * math.cos(self.look_direction_rad) - math.sin(self.look_direction_rad) * (
+            #             self.LENGTH / 2).pixel()
+            # r_y = self.WIDTH.pixel() * math.sin(self.look_direction_rad) + math.cos(self.look_direction_rad) * (
+            #             self.LENGTH / 2).pixel()
+            #
+            # local_xr = self.local_pos[0] +
+            # logger.debug(f"{world_rx}, {world_ry}")
+
+            self.look_direction_deg += alpha
+            self.look_direction_rad = math.radians(self.look_direction_deg)
+
+            dx = Length(world_dx, Length.PIXEL)
+            dy = Length(world_dy, Length.PIXEL)
+
+
+
+        # s_left = delta_time * self.left_motor_speed     # TODO: motor speed to distance based on wheels
+        # s_right = delta_time * self.right_motor_speed  # TODO: motor speed to distance based on wheels
+        # s_left = math.pi * self.WIDTH
+        # s_right = 0
+        # if s_left > s_right:
+        #     alpha = (180 * (s_left - s_right).pixel())/(math.pi * self.WIDTH.pixel())  # TODO: proper length
+        #     r1 = (s_right * 180)/(math.pi * alpha)
+        #     dx = r1 + self.WIDTH/2 + (r1 + self.WIDTH/2) * math.cos(math.radians(180 - alpha))
+        #     dy = (r1 + self.WIDTH/2) * math.sin(math.radians(180 - alpha))
+        #     self.look_direction_deg += alpha
+        #     self.look_direction_rad = math.radians(self.look_direction_deg)
+        elif s_left < s_right:
+            alpha = (180 * (s_left - s_right)) / (math.pi * self.WIDTH.pixel())   # TODO: proper length
+            r1 = (s_right * 180) / (math.pi * alpha)
+            dx = -(r1 + self.WIDTH / 2 + (r1 + self.WIDTH / 2) * math.cos(math.radians(180 - alpha)))
+            dy = -((r1 + self.WIDTH / 2) * math.sin(math.radians(180 - alpha)))
+        else:
+            dx = math.cos(self.look_direction_rad - math.pi / 2) * s_left
+            dy = math.sin(self.look_direction_rad - math.pi / 2) * s_right
         self.local_pos[0] += dx
         self.local_pos[1] += dy
         return [dx, dy]
