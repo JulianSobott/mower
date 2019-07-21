@@ -74,7 +74,7 @@ class Mower(core.Mower, Renderable):
 
         painter.setTransform(transform, combine=True)
 
-        # painter.fillRect(rect, QtGui.QBrush(self.MOWER_COLOR, QtCore.Qt.SolidPattern))
+        painter.fillRect(rect, QtGui.QBrush(self.MOWER_COLOR, QtCore.Qt.SolidPattern))
         painter.drawImage(rect, self.img_mower)
 
         painter.resetTransform()

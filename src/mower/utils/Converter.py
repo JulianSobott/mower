@@ -11,7 +11,7 @@ from mower.utils.Logging import logger
 #: 1 pixel = 1/PX2M_DIVIDER meter
 #: X pixel = X/PX2M_DIVIDER meter
 #: The bigger the value the less area is rendered on one pixel
-PX2M_DIVIDER = 50
+PX2M_DIVIDER = 100
 
 
 class Length(object):
@@ -43,11 +43,11 @@ class Length(object):
 
     def pixel(self) -> int:
         if self.unit == self.METER:
-            return int(self.length * PX2M_DIVIDER)
+            return round(self.length * PX2M_DIVIDER)
         if self.unit == self.PIXEL:
-            return int(self.length)
+            return round(self.length)
         if self.unit == self.CENTIMETER:
-            return int((self.length * PX2M_DIVIDER) / 100)
+            return round((self.length * PX2M_DIVIDER) / 100)
 
     def centimeter(self) -> float:
         if self.unit == self.METER:

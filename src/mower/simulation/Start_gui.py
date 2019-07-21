@@ -25,7 +25,7 @@ def setup_windows():
     local_window.set_control_window(control_window)
     mower.global_map = global_window.map
 
-    main_loop = setup_main_loop([local_window, global_window])
+    main_loop = setup_main_loop([local_window])
     logger.debug("Start simulation")
     sys.exit(app.exec())
 

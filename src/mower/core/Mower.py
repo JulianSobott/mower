@@ -43,6 +43,7 @@ from typing import Tuple
 
 import math
 
+from mower.core import math_utils
 from mower.core.Logging import logger
 from mower.utils import Length
 from mower import core
@@ -83,7 +84,7 @@ class Mower:
         #: The direction, the front of the mower faces. The int is a compass number
         #: E.g. North = 0, East = 90, South = 180, West = 270
         #: Value Range inclusive: 0 - 359
-        self.look_direction_deg: int = 90
+        self.look_direction_deg: int = 0
         self.look_direction_rad: float = math.radians(self.look_direction_deg)
 
         #: Output signal for left motor. Range: 0 <= speed <= 100
@@ -186,10 +187,20 @@ class Mower:
     def update(self, delta_time: float):
         """Takes all data calculates next actions and execute them.
         Way algorithm could go here?"""
-        self._update_position(delta_time)
+        #self._update_position(delta_time)
         data = self.get_sensor_data()
         self.update_map(data)
-        self.set_motors(5, types.DIRECTION_FORWARD, 0, types.DIRECTION_FORWARD)
+        self.set_motors(0, types.DIRECTION_FORWARD, 0, types.DIRECTION_FORWARD)
+        ref_point_x = (Length(2, Length.METER) + self.WIDTH/2).pixel()
+        ref_point_y = (Length(1, Length.METER) + self.LENGTH/2).pixel()
+        point_x = self.local_pos[0].pixel()
+        point_y = self.local_pos[1].pixel()
+        angular = 1
+        new_x, new_y = math_utils.rotate_point((ref_point_x, ref_point_y), angular, (point_x, point_y))
+        self.look_direction_deg += angular
+        self.look_direction_rad = math.radians(self.look_direction_deg)
+        self.local_pos[0] = Length(new_x, Length.PIXEL)
+        self.local_pos[1] = Length(new_y, Length.PIXEL)
 
     def update_map(self, data: 'SensorData'):
         pass
@@ -200,6 +211,7 @@ class Mower:
         :param delta_time: Time passed since last update.
         :return: delta X, delta Y
         """
+
 
         w = self.WIDTH.pixel()
         s_left = delta_time * self.left_motor_speed
