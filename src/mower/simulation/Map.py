@@ -121,6 +121,7 @@ class Map(Renderable, QtWidgets.QWidget):
             path = QtGui.QPainterPath()
             path.moveTo(*path_data.begin.pos)
             for node in path_data:
+                painter.drawEllipse(node.pos[0] - 2, node.pos[1] - 2, 4, 4)
                 path.lineTo(*node.pos)
             path.lineTo(*path_data.begin.pos)
             painter.drawPath(path)
@@ -128,8 +129,8 @@ class Map(Renderable, QtWidgets.QWidget):
         if self.temp_drawing_shape is not None:
             self.temp_drawing_shape.draw(painter)
 
-        for item in self.items:
-            item.draw(painter, self.is_global)
+        # for item in self.items:
+        #     item.draw(painter, self.is_global)
 
     def mousePressEvent(self, mouse_event: QtGui.QMouseEvent):
         self.last_local_pos = mouse_event.localPos().toPoint()
@@ -141,7 +142,7 @@ class Map(Renderable, QtWidgets.QWidget):
             self.map_data.begin_new_path()
             self.map_data.add_point(global_pos.x(), global_pos.y())
             if self.pen_drawing_mode == DrawingMode.RECTANGLE:
-                self.temp_drawing_shape = Rectangle(self.pen_cell_type, global_pos.x(), global_pos.y(), 0, 0)
+                self.map_data.begin_dynamic_rect(global_pos.x(), global_pos.y())
         elif mouse_event.button() == 2:
             # right
             self.mouse_move_mode = "TRANSLATE"
@@ -157,7 +158,7 @@ class Map(Renderable, QtWidgets.QWidget):
             if self.pen_drawing_mode == DrawingMode.FREE_HAND:
                 self.map_data.add_point(global_pos.x(), global_pos.y())
             elif self.pen_drawing_mode == DrawingMode.RECTANGLE:
-                pass
+                self.map_data.update_dynamic_rect(global_pos.x(), global_pos.y())
 
         else:
             delta = global_pos - last_global_pos
@@ -167,6 +168,8 @@ class Map(Renderable, QtWidgets.QWidget):
 
     def mouseReleaseEvent(self, mouse_event):
         self.last_local_pos = None
+        if self.mouse_move_mode == "DRAW":
+            self.map_data.end_new_path()
         if self.temp_drawing_shape is not None:
             self.temp_drawing_shape = None
 
