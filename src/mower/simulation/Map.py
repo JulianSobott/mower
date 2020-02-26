@@ -73,7 +73,7 @@ class Map(Renderable, QtWidgets.QWidget):
         self.map_data = core.Map()
 
         # debug
-        self.map_data.debug_add_rect(10, 10, 100, 100)
+        # self.map_data.debug_add_rect(10, 10, 100, 100)
 
         if items is None:
             self.items = []
@@ -119,11 +119,12 @@ class Map(Renderable, QtWidgets.QWidget):
         painter.setPen(QtGui.QColor(255, 180, 0))
         for path_data in self.map_data.paths:
             path = QtGui.QPainterPath()
-            path.moveTo(*path_data.begin.pos)
+            start = path_data.begin.pos.x, path_data.begin.pos.y
+            path.moveTo(*start)
             for node in path_data:
-                painter.drawEllipse(node.pos[0] - 2, node.pos[1] - 2, 4, 4)
-                path.lineTo(*node.pos)
-            path.lineTo(*path_data.begin.pos)
+                painter.drawEllipse(node.pos.x - 2, node.pos.y - 2, 4, 4)
+                path.lineTo(node.pos.x, node.pos.y)
+            path.lineTo(*start)
             painter.drawPath(path)
 
         if self.temp_drawing_shape is not None:
@@ -139,10 +140,12 @@ class Map(Renderable, QtWidgets.QWidget):
             # left
             self.mouse_move_mode = "DRAW"
             global_pos: QtCore.QPoint = self.transformation.inverted()[0].map(self.last_local_pos)
-            self.map_data.begin_new_path()
-            self.map_data.add_point(global_pos.x(), global_pos.y())
+
             if self.pen_drawing_mode == DrawingMode.RECTANGLE:
                 self.map_data.begin_dynamic_rect(global_pos.x(), global_pos.y())
+            elif self.pen_drawing_mode == DrawingMode.FREE_HAND:
+                self.map_data.begin_new_path()
+                self.map_data.add_point(global_pos.x(), global_pos.y())
         elif mouse_event.button() == 2:
             # right
             self.mouse_move_mode = "TRANSLATE"
