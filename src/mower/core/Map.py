@@ -11,119 +11,86 @@ public classes
     :members:
 
 """
-from typing import Union
+from typing import Union, List
 
-import numpy as np
-
-import skimage.draw
-
-from mower.core import CellType
-from mower.core.map_utils import Quad, DATA_SHAPE
-from mower.utils import Length, types
-from mower.utils.types import Point
-from mower.utils import Converter
-from mower.core.Logging import logger
+from mower.utils.vectors import point_distance
+from mower.utils.Logging import logger
 
 
 class Map:
     """
     The map stores data for each cell. It is build up from :class:`mower.core.map_utils.Quad` 's.
     """
-    #: How big is a cell in the real world. The smaller the value the more precise is the map, but also the bigger it
-    #: gets (memory).
-    #: Use the converter unit to fit pixel conversion properly
-    CELL_SIZE = Length(1/Converter.PX2M_DIVIDER, Length.METER)
 
     def __init__(self):
-        self.root_quad = Quad(None, (2, 2), Quad)
-        self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)
+        self.paths: List['Path'] = []
+        self.current_path: 'Path' = None
 
-        #: After which time (in seconds) every grass cell 'grows'
-        self._grass_update_time = 0.5
-        #: Time passed since the last grow
-        self._passed_last_grown = 0
+    def debug_add_rect(self, x, y, width, height):
+        path = Path()
+        path.add_position((x, y))
+        path.add_position((x + width, y))
+        path.add_position((x + width, y + height))
+        path.add_position((x, y + height))
+        self.paths.append(path)
 
-    def add_line_data(self, pos1: Point, pos2: Point, thickness: int, data_val: int):
-        # TODO: find way that ensures, that line is always thick enough (take angular in account)
-        poly = np.array((
-            (pos1[1] + thickness // 2, pos1[0] + thickness // 2),   # top left
-            (pos1[1] - thickness // 2, pos1[0] - thickness // 2),   # bottom left
-            (pos2[1] - thickness // 2, pos2[0] - thickness // 2),   # bottom right
-            (pos2[1] + thickness // 2, pos2[0] + thickness // 2),   # top right
-        ))
-        poly += (np.array(self.root_quad.offset) * np.array(DATA_SHAPE))[[1, 0]]
-        rr, cc = skimage.draw.polygon(poly[:, 0], poly[:, 1])
-        rr -= self.root_quad.offset[1] * DATA_SHAPE[1]
-        cc -= self.root_quad.offset[0] * DATA_SHAPE[0]
+    def begin_new_path(self):
+        self.current_path = Path()
+        self.paths.append(self.current_path)
 
-        self.root_quad.set_data_by_indices(rr, cc, data_val)
+    def add_point(self, x, y, min_delta=10):
+        if self.current_path.end() is None or point_distance((x, y), self.current_path.end().pos) > min_delta:
+            self.paths[-1].add_position((x, y))
+
 
     def update(self, passed_time: Union[float, int]):
-        self._passed_last_grown += passed_time
-        if self._passed_last_grown >= self._grass_update_time:
-            self.root_quad.grow_grass_cells()
-            self._passed_last_grown = 0
-
-    def get_value_at(self, x: int, y: int) -> int:
-        """
-
-        :param x: position
-        :param y: position
-        :return: CellType value
-        """
-        return self.root_quad.get_value_at(x, y)
-
-    def set_value_at(self, x: int, y: int, value: int) -> None:
-        """
-
-        :param x: position
-        :param y: position
-        :param value: CellType value
-        :return: None
-        """
-        return self.root_quad.set_value_at(x, y, value)
-
-    def get_array_at(self, x: int, y: int, width: int, height: int) -> np.ndarray:
-        """
-
-        :param x: position
-        :param y: position
-        :param width:
-        :param height:
-        :return: An Array filled with the data of a rectangle area with geometry: x, y, width, height
-        """
-        return self.root_quad.get_array_at(x, y, width, height)
-
-    def set_data_by_array(self, array: np.ndarray, x: int, y: int):
-        """
-
-        :param array: numpy integer array filled with the new data
-        :param x: position on the map. Can be negative
-        :param y: position on the map. Can be negative
-        :return:
-        """
-        return self.root_quad.set_data_by_array(array, x, y)
-
-    def get_quadrilateral_data(self, p_tl: types.Point, p_tr: types.Point, p_br: types.Point, p_bl: types.Point,
-                               dst_width: int, dst_height: int) -> np.ndarray:
-        """
-        Allows selecting values in form of a quadrilateral. Most times it will be a rectangle rotated around the z-axis.
-
-        :param p_tl: position top left
-        :param p_tr: position top right
-        :param p_br: position bottom right
-        :param p_bl: position bottom left
-        :param dst_width: width of the return array
-        :param dst_height: height of the return array
-        :return: A 2D numpy integer array
-        """
-        return self.root_quad.get_quadrilateral_data(p_tl, p_tr, p_br, p_bl, dst_width, dst_height)
+        pass
 
     def reset(self):
-        """
-
-        :return:
-        """
         self.__init__()
-        # self.root_quad = Quad(None, (2, 2), Quad)
-        # self.root_quad.fill_with_quads(CellType.GRASS.value, DATA_SHAPE)
+
+
+class Path:
+
+    def __init__(self):
+        self.begin = None
+        self.last = None
+        self._current = None
+
+    def add_position(self, position):
+        node = Node(position, None, None)
+        if self.begin is None:
+            self.begin = node
+            self.begin.successor = node
+            self.begin.predecessor = node
+            self._current = self.begin
+        else:
+            self.begin.predecessor.successor = node
+            node.successor = self.begin
+            node.predecessor = self.begin.predecessor
+            self.begin.predecessor = node
+
+    def end(self):
+        return self.begin.predecessor if self.begin else None
+
+    def __iter__(self):
+        yield self._current
+        self._current = self._current.successor
+        while self._current is not self.begin:
+            yield self._current
+            self._current = self._current.successor
+
+    def __next__(self):
+        self._current = self._current.successor
+        return self._current
+
+
+class Node:
+
+    def __init__(self, pos, predecessor, successor):
+        self.pos = pos
+        self.predecessor = predecessor
+        self.successor = successor
+
+    def __repr__(self):
+        return f"Node(pos={self.pos}, predecessor={id(self.predecessor)}, successor={id(self.successor)})"

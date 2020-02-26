@@ -47,8 +47,8 @@ from mower.simulation.Painting import Renderable, Painter
 from mower.utils import types
 
 
-class Map(core.Map, Renderable, QtWidgets.QWidget):
-    #: Colors for all :class:`mower.core.Map.CellType` 's
+class Map(Renderable, QtWidgets.QWidget):
+
     color_table = (
             [
                 QtGui.qRgb(100, 100, 100),  # UNDEFINED
@@ -60,8 +60,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             + [QtGui.qRgb(0, 0, 0) for i in range(3, mower.core.map_utils.CellType.MIN_GRASS.value)]
 
             # GRASS Heights 20: short - 40: high
-            + [QtGui.qRgb(0, i*3+50, 0) for i in range(mower.core.map_utils.CellType.MIN_GRASS.value,
-                                                       mower.core.map_utils.CellType.MAX_GRASS.value + 1)])
+            + [QtGui.qRgb(0, i * 3 + 50, 0) for i in range(mower.core.map_utils.CellType.MIN_GRASS.value,
+                                                           mower.core.map_utils.CellType.MAX_GRASS.value + 1)])
 
     def __init__(self, items: List[Renderable] = None, is_global: bool = False):
         """
@@ -70,7 +70,10 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         :param is_global: Defines if the map represents the global view of the scene or the local.
         """
         super().__init__()
-        super(core.Map, self).__init__()
+        self.map_data = core.Map()
+
+        # debug
+        self.map_data.debug_add_rect(10, 10, 100, 100)
 
         if items is None:
             self.items = []
@@ -96,7 +99,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
 
         #: x, y, width, height
         self.max_bounds = [0, 0, self.window_size.x(), self.window_size.y()]
-        self.root_quad.grow_to_size(self.max_bounds)
 
         self.transformation = QtGui.QTransform()
         self.mouse_move_mode = "DRAW"  # TRANSLATE
@@ -106,21 +108,22 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self._debug_render_grid = True
 
     def update_rendering(self, passed_time):
-        super().update(passed_time)
+        self.map_data.update(passed_time)
         for item in self.items:
             item.update_rendering(passed_time)
 
     def draw(self, painter, *args):
         painter.setTransform(self.transformation, combine=True)
-        for row in range(self.root_quad.shape[0]):
-            for col in range(self.root_quad.shape[1]):
-                quad: Quad = self.root_quad[row][col]
-                pos_x = (-self.root_quad.offset[0] + col) * quad.shape[1]
-                pos_y = (-self.root_quad.offset[1] + row) * quad.shape[0]
-                if (quad is not None and
-                        self.max_bounds[0] <= pos_x + quad.shape[1] and pos_x <= self.max_bounds[2] and
-                        self.max_bounds[1] <= pos_y + quad.shape[0] and pos_y <= self.max_bounds[3]):
-                    self.draw_quad(painter, quad, pos_x, pos_y)
+
+        painter.setBrush(QtGui.QBrush(QtGui.QColor(Map.color_table[self.pen_cell_type.value])))
+        painter.setPen(QtGui.QColor(255, 180, 0))
+        for path_data in self.map_data.paths:
+            path = QtGui.QPainterPath()
+            path.moveTo(*path_data.begin.pos)
+            for node in path_data:
+                path.lineTo(*node.pos)
+            path.lineTo(*path_data.begin.pos)
+            painter.drawPath(path)
 
         if self.temp_drawing_shape is not None:
             self.temp_drawing_shape.draw(painter)
@@ -135,6 +138,8 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
             # left
             self.mouse_move_mode = "DRAW"
             global_pos: QtCore.QPoint = self.transformation.inverted()[0].map(self.last_local_pos)
+            self.map_data.begin_new_path()
+            self.map_data.add_point(global_pos.x(), global_pos.y())
             if self.pen_drawing_mode == DrawingMode.RECTANGLE:
                 self.temp_drawing_shape = Rectangle(self.pen_cell_type, global_pos.x(), global_pos.y(), 0, 0)
         elif mouse_event.button() == 2:
@@ -150,15 +155,9 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         if self.mouse_move_mode == "DRAW":
 
             if self.pen_drawing_mode == DrawingMode.FREE_HAND:
-                stroke_width = 10  # TODO: add parameters to ControlWindow (Color/Type, stroke_width, )
-                self.add_line_data((last_global_pos.x(), last_global_pos.y()),
-                                   (global_pos.x(), global_pos.y()),
-                                   stroke_width,
-                                   self.pen_cell_type.value)
+                self.map_data.add_point(global_pos.x(), global_pos.y())
             elif self.pen_drawing_mode == DrawingMode.RECTANGLE:
-                self.temp_drawing_shape.update_geometry_by_point(global_pos.x(), global_pos.y())
-                # self.temp_drawing_shape.width = global_pos.x() - self.temp_drawing_shape.x
-                # self.temp_drawing_shape.height = global_pos.y() - self.temp_drawing_shape.y
+                pass
 
         else:
             delta = global_pos - last_global_pos
@@ -169,7 +168,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
     def mouseReleaseEvent(self, mouse_event):
         self.last_local_pos = None
         if self.temp_drawing_shape is not None:
-            self.root_quad.set_data_by_array(*self.temp_drawing_shape.get_array_data())
             self.temp_drawing_shape = None
 
     def wheelEvent(self, event: QtGui.QWheelEvent):
@@ -183,19 +181,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.transformation.scale(1 + scale_delta, 1 + scale_delta)
         self.updated_transformation()
 
-    def draw_quad(self, painter, quad: Quad, x, y):
-        qi = QtGui.QImage(quad.data, quad.shape[1], quad.shape[0], quad.data.strides[0], QtGui.QImage.Format_Indexed8)
-        qi.setColorTable(self.color_table)
-        painter.drawImage(x, y, qi)
-
-        if self._debug_render_grid:
-            qi = self._debug_grid_img
-            qi = qi.scaledToHeight(quad.shape[1])
-            qi = qi.scaledToWidth(quad.shape[0])
-            painter.drawImage(x, y, qi)
-        # pix_map = QtGui.QPixmap.fromImage(qi)
-        # painter.drawPixmap(x, y, pix_map)
-
     def updated_transformation(self):
         minimum: QtCore.QPoint = self.transformation.inverted()[0].map(QtCore.QPoint(0, 0))
         maximum: QtCore.QPoint = self.transformation.inverted()[0].map(self.window_size)
@@ -203,8 +188,6 @@ class Map(core.Map, Renderable, QtWidgets.QWidget):
         self.max_bounds[1] = minimum.y()
         self.max_bounds[2] = maximum.x()
         self.max_bounds[3] = maximum.y()
-
-        self.root_quad.grow_to_size(self.max_bounds)
 
     def reset(self):
         """
