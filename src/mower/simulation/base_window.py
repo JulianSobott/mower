@@ -32,7 +32,7 @@ import time
 from typing import List
 import traceback
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 from mower.simulation.Painting import Renderable, Painter
 from mower.utils import Singleton
@@ -116,6 +116,10 @@ class BaseWindow(QtWidgets.QMainWindow, EventReceiverWidget):
     def forward_event(self, function, event):
         for receiver in self.event_receivers:
             receiver.__getattribute__(function.__name__)(event)
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.key() == QtCore.Qt.Key_Escape:
+            exit(0)
 
 
 class BaseWindowInterface(metaclass=Singleton):
