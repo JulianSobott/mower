@@ -123,6 +123,12 @@ class Path:
         curr.predecessor.successor = node
         curr.predecessor = node
 
+    def find(self, pos: Vec2, start: 'Node'):
+        s = start
+        while s.pos != pos:
+            s = s.successor
+        return s
+
     def next_non_intersecting(self, n):
         c = n
         while c.intersect:
@@ -181,10 +187,66 @@ class Path:
                                                             c.pos, clip.next_non_intersecting(c.successor).pos)
                             i_s = Node(i, alpha_s, intersect=True, entry=False)
                             i_c = Node(i, alpha_c, intersect=True, entry=False)
+                            if alpha_c == 1:    # other point is the intersection
+                                i_c = clip.find(i, c.predecessor)
+                                i_c.intersect = True
+                                i_c.is_on_line = True
+                            elif alpha_c == 0:  # clip pos on s line
+                                i_c = c
+                                c.is_on_line = True
+                                i_s.is_on_line = True
+                                c.intersect = True
+                            else:
+                                clip.insert(i_c, c, self.next_non_intersecting(c.successor))
+
+                            if alpha_s == 1:    # other point is the intersection
+                                i_s = self.find(i, s.predecessor)
+                                i_s.is_on_line = True
+                                i_s.intersect = True
+                            elif alpha_s == 0:  # clip pos on s line
+                                i_s = s
+                                s.is_on_line = True
+                                i_c.is_on_line = True
+                                s.intersect = True
+                            else:
+                                self.insert(i_s, s, self.next_non_intersecting(s.successor))
+
                             i_s.neighbour = i_c
                             i_c.neighbour = i_s
-                            self.insert(i_s, s, self.next_non_intersecting(s.successor))
-                            clip.insert(i_c, c, self.next_non_intersecting(c.successor))
+
+                            # if alpha_c == 0:  # clip pos on s line
+                            #     c.intersect = True
+                            #     c.alpha = 0
+                            #     i_s.neighbour = c
+                            #     c.neighbour = i_s
+                            # else:
+                            #     i_s.neighbour = i_c
+                            #     i_c.neighbour = i_s
+                            # if alpha_s == 0:
+                            #     s.intersect = True
+                            #     s.alpha = 0
+                            #     i_c.neighbour = s
+                            #     s.neighbour = i_c
+                            # else:
+                            #     i_s.neighbour = i_c
+                            #     i_c.neighbour = i_s
+                            # if alpha_c == 0:    # clip pos on s line
+                            #     i_c = c
+                            #     c.intersect = True
+                            #     c.entry = False
+                            #     c.alpha = alpha_c
+                            # else:
+                            #     clip.insert(i_c, c, self.next_non_intersecting(c.successor))
+                            # if alpha_s == 0:
+                            #     i_s = s
+                            #     s.intersect = True
+                            #     s.entry = False
+                            #     s.alpha = alpha_s
+                            # else:
+                            #     self.insert(i_s, s, self.next_non_intersecting(s.successor))
+                            # i_s.neighbour = i_c
+                            # i_c.neighbour = i_s
+
                         except TypeError:
                             pass    # intersect ct returned None. No problem
 
@@ -212,21 +274,24 @@ class Path:
                 if current.entry:
                     while True:
                         current = current.successor
-                        if not current.checked:
+                        if not current.checked or current.is_on_line:
                             clipped.add(Node(Vec2(current.pos.x, current.pos.y)))
                         if current.intersect:
                             break
                 else:
                     while True:
                         current = current.predecessor
-                        if not current.checked:
+                        if not current.checked or current.is_on_line:
                             clipped.add(Node(Vec2(current.pos.x, current.pos.y)))
                         if current.intersect:
                             break
 
                 current = current.neighbour
                 if current.checked:
-                    break
+                    if not current.is_on_line:
+                        break
+                current.is_on_line = False
+                current.neighbour.is_on_line = False
 
             l.append(clipped)
 
@@ -269,6 +334,7 @@ class Node:
         self.alpha = alpha
         self.intersect = intersect
         self.checked = checked
+        self.is_on_line = False
 
     def is_inside(self, poly: Path):
         winding_number = 0

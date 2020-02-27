@@ -63,11 +63,12 @@ def intersect(s1: Vec2, s2: Vec2, c1: Vec2, c2: Vec2):
     us = ((c2.x - c1.x) * (s1.y - c1.y) - (c2.y - c1.y) * (s1.x - c1.x)) / den
     uc = ((s2.x - s1.x) * (s1.y - c1.y) - (s2.y - s1.y) * (s1.x - c1.x)) / den
 
-    if (us == 0 or us == 1) and (0 <= uc <= 1) or\
-       (uc == 0 or uc == 1) and (0 <= us <= 1):
-        return None     # degenerate
+    # if (us == 0 or us == 1) and (0 <= uc <= 1):
+    #     return intersect(Vec2(s1.x, s1.y - 1), s2, c1, c2)
+    # if (uc == 0 or uc == 1) and (0 <= us <= 1):
+    #     return intersect(s1, Vec2(s2.x - 1, s2.y - 1), c1, c2)
 
-    elif (0 < us < 1) and (0 < uc < 1):
+    if (0 <= us <= 1) and (0 <= uc <= 1):
         x = s1.x + us * (s2.x - s1.x)
         y = s1.y + us * (s2.y - s1.y)
         return Vec2(x, y), us, uc
