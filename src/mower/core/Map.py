@@ -67,14 +67,32 @@ class Map:
         self.paths.append(self.current_path)
 
     def end_new_path(self):
-        if len(self.paths) == 2:
-            self.paths = self.paths[0].union(self.paths[1])
-        return
-        new_paths = {self.current_path}
-        for path in self.paths:
-            if path is not self.current_path:
-                new_paths.update(self.current_path.union(path))
-        self.paths = list(new_paths)
+        # TODO: Handle holes
+        if len(self.paths) >= 2:
+            new_paths_queue = [self.current_path]
+            final_new_paths = []
+            for path in self.paths:
+                path_is_disjoint = True
+                processed_new_paths = []
+                while len(new_paths_queue) > 0:
+                    new_path = new_paths_queue.pop()
+                    if new_path is not path:
+                        res = new_path.union(path)
+                        if res[1] == Path.RET_UNION:
+                            processed_new_paths += res[0]
+                            path_is_disjoint = False
+                        elif res[1] == Path.RET_DISJOINT:
+                            processed_new_paths.append(new_path)
+                        elif res[1] == Path.RET_SELF:       # existing path in new path
+                            processed_new_paths.append(new_path)
+                            path_is_disjoint = False
+                        elif res[1] == Path.RET_CLIP:   # new path in existing path
+                            pass    # new path no longer needed
+                new_paths_queue = processed_new_paths
+                if path_is_disjoint:
+                    final_new_paths.append(path)
+            final_new_paths += new_paths_queue
+            self.paths = final_new_paths
 
     def add_point(self, x, y, min_delta=10):
         if self.current_path.end() is None or point_distance(Vec2(x, y), self.current_path.end().pos) > min_delta:
@@ -88,6 +106,11 @@ class Map:
 
 
 class Path:
+
+    RET_SELF = "self"
+    RET_CLIP = "clip"
+    RET_DISJOINT = "disjoint"
+    RET_UNION = "union"
 
     def __init__(self):
         self.begin: Node = None
@@ -198,10 +221,10 @@ class Path:
 
         if not found_intersection:
             if self.begin.is_inside(clip):
-                return [clip]
+                return [clip], Path.RET_CLIP
             if clip.begin.is_inside(self):
-                return self
-            return [self, clip]
+                return [self], Path.RET_SELF
+            return [self, clip], Path.RET_DISJOINT
 
         # identify entry/exit points
         s_entry ^= self.begin.is_inside(clip)
@@ -248,7 +271,7 @@ class Path:
         if not l:
             l.append(self)
 
-        return l
+        return l, Path.RET_UNION
 
     @staticmethod
     def from_points(points):
@@ -270,7 +293,7 @@ class Path:
         return self._current
 
     def __repr__(self):
-        return str(self.points())
+        return f"Path: {id(self)} {self.points()}"
 
 
 class Node:
