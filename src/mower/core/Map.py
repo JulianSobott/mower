@@ -26,6 +26,7 @@ class Map:
         self.paths: List['Path'] = []
         self.current_path: 'Path' = None
         self._current_rect: List[Node] = [None] * 4
+        self._current_rect_origin: Vec2 = None
 
     def debug_add_rect(self, x, y, width, height):
         path = Path()
@@ -41,34 +42,36 @@ class Map:
             self._current_rect[i] = path.add_position(Vec2(x, y))
         self.paths.append(path)
         self.current_path = path
+        self._current_rect_origin = Vec2(x, y)
 
     def update_dynamic_rect(self, x, y):
-        self._current_rect[1].pos.y = y
-        self._current_rect[2].pos.x = x
-        self._current_rect[2].pos.y = y
-        self._current_rect[3].pos.x = x
+        if x > self._current_rect_origin.x:
+            x0 = self._current_rect_origin.x
+            w = x - self._current_rect_origin.x
+        else:
+            x0 = x
+            w = self._current_rect_origin.x - x
+        if y > self._current_rect_origin.y:
+            y0 = self._current_rect_origin.y
+            h = y - self._current_rect_origin.y
+        else:
+            y0 = y
+            h = self._current_rect_origin.y - y
+        self._current_rect[0].pos = Vec2(x0, y0)
+        self._current_rect[1].pos = Vec2(x0 + w, y0)
+        self._current_rect[2].pos = Vec2(x0 + w, y0 + h)
+        self._current_rect[3].pos = Vec2(x0, y0 + h)
 
     def begin_new_path(self):
         self.current_path = Path()
         self.paths.append(self.current_path)
 
     def end_new_path(self):
-        if len(self.paths) == 2:
-            self.paths = self.paths[0].union(self.paths[1])
-        return
-        changed = True
-        i = 0
-        while changed:
-            changed = False
-            i = 0
-            while i < len(self.paths):
-                path = self.paths[i]
-                paths = path.union(self.current_path)
-                if len(paths) == 2: # not overlapping
-                    pass
-                else:   # overlapping
-                    pass
-            self.paths.update(paths)
+        new_paths = {self.current_path}
+        for path in self.paths:
+            if path is not self.current_path:
+                new_paths.update(self.current_path.union(path))
+        self.paths = list(new_paths)
 
     def add_point(self, x, y, min_delta=10):
         if self.current_path.end() is None or point_distance(Vec2(x, y), self.current_path.end().pos) > min_delta:
@@ -189,8 +192,8 @@ class Path:
                 s.entry = s_entry
                 s_entry = not s_entry
 
-        c_entry ^= self.begin.is_inside(clip)
-        for c in self:
+        c_entry ^= clip.begin.is_inside(self)
+        for c in clip:
             if c.intersect:
                 c.entry = c_entry
                 c_entry = not c_entry
@@ -264,7 +267,7 @@ class Node:
 
     def is_inside(self, poly: Path):
         winding_number = 0
-        infinity = Vec2(float("inf"), self.pos.y)
+        infinity = Vec2(100000, self.pos.y)
         for q in poly:
             if not q.intersect and intersect(self.pos, infinity, q.pos, poly.next_non_intersecting(q.successor).pos):
                 winding_number += 1
