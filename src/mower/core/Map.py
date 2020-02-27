@@ -178,6 +178,7 @@ class Path:
         f = True, b = False when stored in the entry record
         """
         # find intersections
+        found_intersection = False
         for s in self:
             if not s.intersect:
                 for c in clip:
@@ -185,6 +186,7 @@ class Path:
                         try:
                             i, alpha_s, alpha_c = intersect(s.pos, self.next_non_intersecting(s.successor).pos,
                                                             c.pos, clip.next_non_intersecting(c.successor).pos)
+                            found_intersection = True
                             i_s = Node(i, alpha_s, intersect=True, entry=False)
                             i_c = Node(i, alpha_c, intersect=True, entry=False)
                             if alpha_c == 1:    # other point is the intersection
@@ -249,6 +251,13 @@ class Path:
 
                         except TypeError:
                             pass    # intersect ct returned None. No problem
+
+        if not found_intersection:
+            if self.begin.is_inside(clip):
+                return [clip]
+            if clip.begin.is_inside(self):
+                return self
+            return [self, clip]
 
         # identify entry/exit points
         s_entry ^= self.begin.is_inside(clip)

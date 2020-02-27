@@ -27,6 +27,18 @@ class TestDrawing(unittest.TestCase):
         for v in expected:
             self.assertIn(v, paths[0].points())
 
+    def test_rect_disjoint_union1(self):
+        p1 = Path.from_points([Vec2(0, 0), Vec2(10, 0), Vec2(10, 10), Vec2(0, 10)])
+        p2 = Path.from_points([Vec2(50, 50), Vec2(70, 50), Vec2(70, 150), Vec2(50, 150)])
+        paths = p1.union(p2)
+        self.assertEqual(2, len(paths))
+        self.assertEqual(len(p1.points()), len(paths[0].points()))
+        self.assertEqual(len(p2.points()), len(paths[1].points()))
+        for v in p1:
+            self.assertIn(v.pos, paths[0].points())
+        for v in p2:
+            self.assertIn(v.pos, paths[1].points())
+
     def test_union_degeneracies(self):
         p1 = Path.from_points([Vec2(0, 0), Vec2(10, 0), Vec2(10, 10), Vec2(0, 10)])
         p2 = Path.from_points([Vec2(10, 5), Vec2(15, 0), Vec2(15, 10)])
