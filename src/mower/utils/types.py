@@ -42,5 +42,7 @@ RIGHT_SIDE = Side("RIGHT")
 
 
 """Underground"""
-Underground = NewType("Underground", Any)   # TODO
-
+Underground = NewType("Underground", int)   # TODO
+Obstacle = Underground(0)
+Grass = Underground(1)
+Unknown = Underground(2)

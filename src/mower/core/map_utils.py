@@ -335,23 +335,3 @@ class Quad:
         quad.data = arr
         quad.shape = arr.shape
         return quad
-
-
-class CellType(enum.Enum):
-
-    UNDEFINED = 0
-    GRASS = 20
-    OBSTACLE = 2
-    MIN_GRASS = 20
-    MAX_GRASS = 40
-
-    @classmethod
-    def _init(cls):
-        cls._values = {0: cls.UNDEFINED, 1: cls.GRASS, 2: cls.OBSTACLE,
-                       **{i: cls.GRASS for i in range(cls.MIN_GRASS.value, cls.MAX_GRASS.value + 1)}}
-
-    @classmethod
-    def by_value(cls, val):
-        return cls._values[val]
-
-CellType._init()

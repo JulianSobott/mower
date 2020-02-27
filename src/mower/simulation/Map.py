@@ -40,11 +40,10 @@ import numpy as np
 
 import mower.core.map_utils
 from mower import core
-from mower.core.map_utils import Quad
 from mower.simulation import paths
 from mower.simulation.Logging import logger
 from mower.simulation.Painting import Renderable, Painter
-from mower.utils import types
+from mower.utils.types import Obstacle, Grass, Unknown, Underground
 
 
 class Map(Renderable, QtWidgets.QWidget):
@@ -54,14 +53,7 @@ class Map(Renderable, QtWidgets.QWidget):
                 QtGui.qRgb(100, 100, 100),  # UNDEFINED
                 QtGui.qRgb(0, 255, 0),  # GRASS
                 QtGui.qRgb(100, 50, 0),  # OBSTACLE
-
-            ]
-            # filler
-            + [QtGui.qRgb(0, 0, 0) for i in range(3, mower.core.map_utils.CellType.MIN_GRASS.value)]
-
-            # GRASS Heights 20: short - 40: high
-            + [QtGui.qRgb(0, i * 3 + 50, 0) for i in range(mower.core.map_utils.CellType.MIN_GRASS.value,
-                                                           mower.core.map_utils.CellType.MAX_GRASS.value + 1)])
+            ])
 
     def __init__(self, items: List[Renderable] = None, is_global: bool = False):
         """
@@ -87,7 +79,7 @@ class Map(Renderable, QtWidgets.QWidget):
         self.window_size = QtCore.QPoint(500, 600)
 
         #: value of the cells that is set, when they are colored by drawing
-        self.pen_cell_type = mower.core.map_utils.CellType.OBSTACLE
+        self.pen_cell_type = Obstacle
         self.pen_drawing_mode = DrawingMode.RECTANGLE
         self.temp_drawing_shape: Union[None, Shape] = None
 
@@ -115,13 +107,13 @@ class Map(Renderable, QtWidgets.QWidget):
     def draw(self, painter, *args):
         painter.setTransform(self.transformation, combine=True)
 
-        painter.setBrush(QtGui.QBrush(QtGui.QColor(Map.color_table[self.pen_cell_type.value])))
         painter.setPen(QtGui.QColor(255, 180, 0))
-        for path_data in self.map_data.paths:
+        for area_data in self.map_data.areas:
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(Map.color_table[area_data.underground])))
             path = QtGui.QPainterPath()
-            start = path_data.begin.pos.x, path_data.begin.pos.y
+            start = area_data.polygon.begin.pos.x, area_data.polygon.begin.pos.y
             path.moveTo(*start)
-            for node in path_data:
+            for node in area_data.polygon:
                 painter.drawEllipse(node.pos.x - 2, node.pos.y - 2, 4, 4)
                 path.lineTo(node.pos.x, node.pos.y)
             path.lineTo(*start)
@@ -142,10 +134,10 @@ class Map(Renderable, QtWidgets.QWidget):
             global_pos: QtCore.QPoint = self.transformation.inverted()[0].map(self.last_local_pos)
 
             if self.pen_drawing_mode == DrawingMode.RECTANGLE:
-                self.map_data.begin_dynamic_rect(global_pos.x(), global_pos.y())
+                self.map_data.begin_dynamic_rect(global_pos.x(), global_pos.y(), self.pen_cell_type)
             elif self.pen_drawing_mode == DrawingMode.FREE_HAND:
-                self.map_data.begin_new_path()
-                self.map_data.add_point(global_pos.x(), global_pos.y())
+                self.map_data.begin_new_area(self.pen_cell_type)
+                self.map_data.add_point_to_area(global_pos.x(), global_pos.y())
         elif mouse_event.button() == 2:
             # right
             self.mouse_move_mode = "TRANSLATE"
@@ -159,7 +151,7 @@ class Map(Renderable, QtWidgets.QWidget):
         if self.mouse_move_mode == "DRAW":
 
             if self.pen_drawing_mode == DrawingMode.FREE_HAND:
-                self.map_data.add_point(global_pos.x(), global_pos.y())
+                self.map_data.add_point_to_area(global_pos.x(), global_pos.y())
             elif self.pen_drawing_mode == DrawingMode.RECTANGLE:
                 self.map_data.update_dynamic_rect(global_pos.x(), global_pos.y())
 
@@ -212,7 +204,7 @@ class DrawingMode(enum.IntEnum):
 
 class Shape(Renderable, ABC):
 
-    def __init__(self, cell_type: mower.core.map_utils.CellType):
+    def __init__(self, cell_type: Underground):
         self.cell_type = cell_type
 
     def get_array_data(self):
@@ -224,7 +216,7 @@ class Shape(Renderable, ABC):
 
 class Rectangle(Shape):
 
-    def __init__(self, cell_type: mower.core.map_utils.CellType, x: int, y: int, width: int, height: int):
+    def __init__(self, cell_type: Underground, x: int, y: int, width: int, height: int):
         super().__init__(cell_type)
         self.x = x
         self.y = y
