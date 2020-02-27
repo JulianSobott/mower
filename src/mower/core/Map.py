@@ -67,6 +67,9 @@ class Map:
         self.paths.append(self.current_path)
 
     def end_new_path(self):
+        if len(self.paths) == 2:
+            self.paths = self.paths[0].union(self.paths[1])
+        return
         new_paths = {self.current_path}
         for path in self.paths:
             if path is not self.current_path:
@@ -209,13 +212,15 @@ class Path:
                 if current.entry:
                     while True:
                         current = current.successor
-                        clipped.add(Node(Vec2(current.pos.x, current.pos.y)))
+                        if not current.checked:
+                            clipped.add(Node(Vec2(current.pos.x, current.pos.y)))
                         if current.intersect:
                             break
                 else:
                     while True:
                         current = current.predecessor
-                        clipped.add(Node(Vec2(current.pos.x, current.pos.y)))
+                        if not current.checked:
+                            clipped.add(Node(Vec2(current.pos.x, current.pos.y)))
                         if current.intersect:
                             break
 
